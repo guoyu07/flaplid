@@ -1,0 +1,14 @@
+# AWS: IAM
+check_aws_iam_enabled = true
+check_aws_iam_access_key_id = abc123secret
+check_aws_iam_access_key_secret = abc123secret
+check_aws_iam_maximum_user_inactivity_days = 180
+check_aws_iam_maximum_access_key_inactivity_days = 90
+check_aws_iam_minimum_password_length = 18
+check_aws_iam_maximum_password_age = 180
+
+# GitHub: Organization
+check_github_org_enabled = true
+check_github_org_access_key = abc123secret
+check_github_org_username = johndoe
+check_github_org_organization_name = exampleorg
