@@ -116,7 +116,7 @@ public class SlackTeamCheck extends Check {
 
     @Override
     public boolean configurationComplete() {
-        return true;
+        return !Strings.isNullOrEmpty(configuration.getCheckSlackTeamOauthToken());
     }
 
 }
