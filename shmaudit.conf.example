@@ -12,3 +12,7 @@ check_github_org_enabled = true
 check_github_org_access_key = abc123secret
 check_github_org_username = johndoe
 check_github_org_organization_name = exampleorg
+
+# Slack: Team
+check_slack_team_enabled = true
+check_slack_team_oauth_token = xoxp-abc-123

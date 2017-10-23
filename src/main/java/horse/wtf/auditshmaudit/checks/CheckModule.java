@@ -17,10 +17,15 @@
 
 package horse.wtf.auditshmaudit.checks;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import horse.wtf.auditshmaudit.Configuration;
+import okhttp3.OkHttpClient;
+
+import java.util.concurrent.TimeUnit;
 
 public class CheckModule extends AbstractModule {
 
@@ -38,6 +43,26 @@ public class CheckModule extends AbstractModule {
     @Singleton
     protected Configuration getConfiguration() {
         return configuration;
+    }
+
+    @Provides
+    @Singleton
+    protected ObjectMapper getObjectMapper() {
+        ObjectMapper om = new ObjectMapper();
+        om.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        return om;
+    }
+
+    @Provides
+    @Singleton
+    protected OkHttpClient getHttpClient() {
+        return new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .build();
     }
 
 }

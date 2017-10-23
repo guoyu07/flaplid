@@ -18,7 +18,6 @@
 package horse.wtf.auditshmaudit;
 
 import com.github.joschi.jadconfig.Parameter;
-import com.github.joschi.jadconfig.validators.PositiveIntegerValidator;
 import com.google.inject.Singleton;
 
 @Singleton
@@ -30,6 +29,9 @@ public class Configuration {
 
     @Parameter(value = "check_github_org_enabled", required = true)
     private boolean checkGitHubOrganizationEnabled;
+
+    @Parameter(value = "check_slack_team_enabled", required = true)
+    private boolean checkSlackTeamEnabled;
 
     // AWS: IAM
     @Parameter(value = "check_aws_iam_access_key_id")
@@ -60,12 +62,20 @@ public class Configuration {
     @Parameter(value = "check_github_org_organization_name")
     private String checkGitHubOrganizationOrganizationName;
 
+    // Slack: Team
+    @Parameter(value = "check_slack_team_oauth_token")
+    private String checkSlackTeamOauthToken;
+
     public boolean isCheckAWSIAMEnabled() {
         return checkAWSIAMEnabled;
     }
 
     public boolean isCheckGitHubOrganizationEnabled() {
         return checkGitHubOrganizationEnabled;
+    }
+
+    public boolean isCheckSlackTeamEnabled() {
+        return checkSlackTeamEnabled;
     }
 
     public String getCheckAWSIAMAccessKeyId() {
@@ -102,6 +112,10 @@ public class Configuration {
 
     public String getCheckGitHubOrganizationOrganizationName() {
         return checkGitHubOrganizationOrganizationName;
+    }
+
+    public String getCheckSlackTeamOauthToken() {
+        return checkSlackTeamOauthToken;
     }
 
 }

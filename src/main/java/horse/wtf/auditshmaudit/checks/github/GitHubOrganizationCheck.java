@@ -70,7 +70,7 @@ public class GitHubOrganizationCheck extends Check {
 
     @Override
     public boolean disabled() {
-        return false;
+        return !configuration.isCheckGitHubOrganizationEnabled();
     }
 
     @Override
