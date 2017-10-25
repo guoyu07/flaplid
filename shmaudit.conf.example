@@ -7,6 +7,13 @@ check_aws_iam_maximum_access_key_inactivity_days = 90
 check_aws_iam_minimum_password_length = 18
 check_aws_iam_maximum_password_age = 180
 
+# AWS: Security Groups
+check_aws_security_groups_enabled = true
+check_aws_security_groups_access_key_id = abc123secret
+check_aws_security_groups_access_key_secret = abc123secret
+check_aws_security_groups_critical_ports_inbound = tcp/22,tcp/445,tcp/139,tcp/3389,udp/3389,tcp3306
+check_aws_security_groups_critical_ports_outbound = udp/53,tcp/21,tcp/25,tcp/465,tcp/587
+
 # GitHub: Organization
 check_github_org_enabled = true
 check_github_org_access_key = abc123secret
