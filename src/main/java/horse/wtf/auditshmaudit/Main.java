@@ -113,6 +113,7 @@ public class Main {
 
             if (check.disabled()) {
                 disabledChecks.add(check);
+                continue;
             }
 
             try {
