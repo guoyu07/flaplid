@@ -19,6 +19,7 @@ package horse.wtf.auditshmaudit.attic;
 
 import com.google.common.io.ByteSink;
 import com.google.common.io.Files;
+import horse.wtf.auditshmaudit.checks.Check;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -27,26 +28,29 @@ import java.io.IOException;
 
 public class Attic {
 
-    private final String id;
+    private final Check check;
     private final String folder;
-    private final String checkFolder;
+    private final String checkTypeFolder;
+    private final String checkIdFolder;
 
-    public Attic(String id, String atticFolder) {
-        this.id = id;
+    public Attic(Check check, String atticFolder) {
+        this.check = check;
         this.folder = atticFolder;
-        this.checkFolder = atticFolder + "/" + id;
+        this.checkTypeFolder = atticFolder + "/" + check.getCheckType();
+        this.checkIdFolder = checkTypeFolder + "/" + check.getCheckId();
 
         // Create folders if required.
         try {
             ensureFolder(atticFolder);
-            ensureFolder(checkFolder);
+            ensureFolder(checkTypeFolder);
+            ensureFolder(checkIdFolder);
         } catch(Exception e) {
-            throw new RuntimeException("Error during attic initialization for check [" + id + "]", e);
+            throw new RuntimeException("Error during attic initialization for check [" + check.getFullCheckIdentifier() + "]", e);
         }
     }
 
     public File writeFile(byte[] bytes) throws IOException {
-        File file = new File(checkFolder + "/" + DateTime.now().toString(DateTimeFormat.forPattern("yyyy-mm-dd_HH-mm-ss")) + ".atticfile");
+        File file = new File(checkIdFolder + "/" + DateTime.now().toString(DateTimeFormat.forPattern("yyyy-mm-dd_HH-mm-ss")) + ".atticfile");
 
         ByteSink sink = Files.asByteSink(file);
         sink.write(bytes);

@@ -25,7 +25,6 @@ import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientB
 import com.amazonaws.services.identitymanagement.model.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
@@ -37,9 +36,7 @@ import java.util.List;
 
 public class AWSIAMCheck {
 
-    /*private static final String NAME = "AWS: IAM";
-
-    private final Configuration configuration;
+    /*    private final Configuration configuration;
 
     @Inject
     public AWSIAMCheck(Configuration configuration) {
@@ -145,11 +142,6 @@ public class AWSIAMCheck {
         }
 
         return issues();
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
     }
 
     @Override

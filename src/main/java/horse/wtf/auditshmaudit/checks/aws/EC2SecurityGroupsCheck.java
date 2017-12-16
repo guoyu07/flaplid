@@ -24,7 +24,6 @@ import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.*;
 import com.google.common.base.Strings;
-import com.google.inject.Inject;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
@@ -36,8 +35,6 @@ import java.util.List;
 public class EC2SecurityGroupsCheck {
 
     /*private static final Logger LOG = LogManager.getLogger(EC2SecurityGroupsCheck.class);
-
-    private static final String NAME = "AWS: Security Groups";
 
     private static final String CIDR_ALL_IPV4 = "0.0.0.0/0";
     private static final String CIDR_ALL_IPV6 = "::/0";
@@ -57,7 +54,7 @@ public class EC2SecurityGroupsCheck {
             } catch(Exception e) {
                 // lol exception types
                 if(e.getMessage().contains("Status Code: 401")) {
-                    LOG.warn("User not allowed to run in region [{}]. Skipping.", region.getName());
+                    LOG.warn("User not allowed to run in region [{}]. Skipping.", region.getLongCheckName());
                 } else {
                     LOG.error(e);
                 }
@@ -121,11 +118,6 @@ public class EC2SecurityGroupsCheck {
     // meh amazon
     private boolean isAllRange(IpPermission permission) {
         return permission.getFromPort() == null && permission.getToPort() == null;
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
     }
 
     @Override

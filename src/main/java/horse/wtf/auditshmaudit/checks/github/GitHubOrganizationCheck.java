@@ -18,7 +18,6 @@
 package horse.wtf.auditshmaudit.checks.github;
 
 import com.google.common.base.Strings;
-import com.google.inject.Inject;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
@@ -32,7 +31,7 @@ import java.util.List;
 
 public class GitHubOrganizationCheck {
 
-    /*private static final String NAME = "GitHub: Organization Members";
+    /*
 
     private final Configuration configuration;
 
@@ -61,11 +60,6 @@ public class GitHubOrganizationCheck {
         }
 
         return issues();
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
     }
 
     @Override

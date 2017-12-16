@@ -18,23 +18,24 @@
 package horse.wtf.auditshmaudit;
 
 import com.beust.jcommander.JCommander;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import horse.wtf.auditshmaudit.checks.Check;
-import horse.wtf.auditshmaudit.checks.CheckModule;
+import horse.wtf.auditshmaudit.checks.FatalCheckException;
+import horse.wtf.auditshmaudit.checks.supplychain.WebsiteDownloadCheck;
 import horse.wtf.auditshmaudit.configuration.Configuration;
+import okhttp3.OkHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.reflections.Reflections;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
 
@@ -71,33 +72,62 @@ public class Main {
             System.exit(FAILURE);
         }
 
-        Injector injector = Guice.createInjector(new CheckModule(configuration));
+
+        ObjectMapper om = new ObjectMapper();
+        om.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .build();
 
         ImmutableList.Builder<Check> disabledChecks = new ImmutableList.Builder<>();
         ImmutableList.Builder<Issue> issues = new ImmutableList.Builder<>();
 
-        Reflections reflections = new Reflections("horse.wtf.auditshmaudit.checks");
-        for (Class<? extends Check> c : reflections.getSubTypesOf(Check.class)) {
-            try {
-                Check check = injector.getInstance(c);
+        // Load all checks.
+        for (Map<String, Object> checkConfig : configuration.checks) {
+            if(!checkConfig.containsKey("type")) {
+                LOG.error("Missing attribute [type] on a check configuration. Skipping.");
+                continue;
+            }
 
-                if(check.disabled()) {
-                    disabledChecks.add(check);
-                } else {
-                    issues.addAll(check.run());
-                }
-            } catch(Exception e) {
-                LOG.error("Fatal error in check [{}]. Aborting.", c.getCanonicalName(), e);
-                System.exit(FAILURE);
+            if(!checkConfig.containsKey("id")) {
+                LOG.error("Missing attribute [id] on a check configuration. Skipping.");
+                continue;
+            }
+
+            String checkType = (String) checkConfig.get("type");
+            String checkId = (String) checkConfig.get("id");
+
+            Check check;
+            switch (checkType) {
+                case "website_download":
+                    check = new WebsiteDownloadCheck(checkId, configuration, httpClient);
+                    break;
+                default:
+                    LOG.error("Unknown check type [{}]. Skipping.", checkType);
+                    continue;
+            }
+
+            if (check.disabled()) {
+                disabledChecks.add(check);
+            }
+
+            try {
+                issues.addAll(check.run());
+            }catch(FatalCheckException e) {
+                LOG.error("Fatal error in check [{}]. Aborting.", check.getFullCheckIdentifier(), e);
             }
         }
 
         for (Issue issue : issues.build()) {
-            LOG.info("Check {}: {}", issue.getCheckName(), issue.getMessage());
+            LOG.info("Check {}: {}", issue.getCheck().getFullCheckIdentifier(), issue.getMessage());
         }
 
         for (Check disabledCheck : disabledChecks.build()) {
-            LOG.warn("Check [{}] is disabled and was not executed.", disabledCheck.getName());
+            LOG.warn("Check [{}] is disabled and was not executed.", disabledCheck.getFullCheckIdentifier());
         }
 
         // TODO: Run OpsGenie heartbeat if in --prod mode. (optional)

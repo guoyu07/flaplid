@@ -1,5 +1,5 @@
 checks:
-  aws_iam:
+  - type: aws_iam
     enabled: false
     access_key:
     access_key_secret:
@@ -8,7 +8,7 @@ checks:
     minimum_password_length: 18
     maximum_password_age: 180
 
-  aws_security_groups:
+  - type: aws_security_groups
     enabled: false
     access_key:
     access_key_secret:
@@ -26,15 +26,15 @@ checks:
       - tcp/465
       - tcp/587
 
-  github_organization:
+  - type: github_organization:
     enabled: false
     organization_name:
     username: 
     access_key:
 
-  slack_team:
+  - type: slack_team:
     enabled: false
     oauth_token:
 
-  website_download:
+  - type: website_download:
     enabled: false

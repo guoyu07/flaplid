@@ -18,7 +18,6 @@
 package horse.wtf.auditshmaudit.checks.supplychain;
 
 import com.google.common.hash.Hashing;
-import com.google.inject.Inject;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
@@ -42,8 +41,7 @@ public class WebsiteDownloadCheck extends Check {
 
     private static final Logger LOG = LogManager.getLogger(WebsiteDownloadCheck.class);
 
-    private static final String ID = "website_download";
-    private static final String NAME = "Supply Chain: Website Download";
+    private static final String TYPE = "website_download";
 
     private static final String C_URL = "url";
     private static final String C_CSS_SELECTOR = "css_selector";
@@ -52,27 +50,29 @@ public class WebsiteDownloadCheck extends Check {
     private static final String C_ARCHIVE_ALL_FILES = "archive_all_files";
     private static final String C_ARCHIVE_MISMATCHED_FILES = "archive_mismatched_files";
 
+    private final String id;
     private final Configuration configuration;
     private final OkHttpClient httpClient;
 
-    @Inject
-    public WebsiteDownloadCheck(Configuration configuration, OkHttpClient httpClient) {
-        super(ID, configuration);
+    public WebsiteDownloadCheck(String id, Configuration configuration, OkHttpClient httpClient) {
+        super(configuration);
 
+        this.id = id;
         this.configuration = configuration;
         this.httpClient = httpClient;
     }
 
     @Override
     protected List<Issue> check() {
-        String cssSelector = configuration.getString(ID, C_CSS_SELECTOR);
-        int selectorIndex = configuration.getInt(ID, C_CSS_SELECTOR_INDEX);
-        String url = configuration.getString(ID, C_URL);
+        String cssSelector = configuration.getString(this, C_CSS_SELECTOR);
+        int selectorIndex = configuration.getInt(this, C_CSS_SELECTOR_INDEX);
+        String url = configuration.getString(this, C_URL);
 
         PhantomJSDriver driver = PhantomJS.buildDriver(PhantomJS.randomUserAgent());
 
         String downloadLink;
         try {
+            LOG.info("Opening [{}] to get download link via CSS selector [{} (ix#{})].", url, cssSelector, selectorIndex);
             driver.get(url);
             List<WebElement> elements = driver.findElements(By.cssSelector(cssSelector));
 
@@ -116,7 +116,7 @@ public class WebsiteDownloadCheck extends Check {
         }
 
         // Calculate and compare checksum.
-        String expectedChecksum = configuration.getString(ID, C_EXPECTED_SHA256_CHECKSUM);
+        String expectedChecksum = configuration.getString(this, C_EXPECTED_SHA256_CHECKSUM);
         LOG.info("Completed download. Comparing checksums. Expecting checksum [{}]", expectedChecksum);
 
         String checksum = Hashing.sha256().hashBytes(downloadedBytes).toString();
@@ -124,7 +124,7 @@ public class WebsiteDownloadCheck extends Check {
             // Checksums match. Delete the file if no archival was configured.
             LOG.info("Checksums match. ({}=={})", expectedChecksum, checksum);
 
-            if(configuration.getBoolean(ID, C_ARCHIVE_ALL_FILES)) {
+            if(configuration.getBoolean(this, C_ARCHIVE_ALL_FILES)) {
                LOG.info("Configuration requests to keep all files. ({}:true) Not deleting downloaded file from attic.", C_ARCHIVE_ALL_FILES);
             } else {
                 LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_ALL_FILES);
@@ -136,7 +136,7 @@ public class WebsiteDownloadCheck extends Check {
             // Checksums do not match!
             LOG.warn("Checksums do not match! ({}!={})", expectedChecksum, checksum);
 
-            if(configuration.getBoolean(ID, C_ARCHIVE_MISMATCHED_FILES)) {
+            if(configuration.getBoolean(this, C_ARCHIVE_MISMATCHED_FILES)) {
                 LOG.info("Configuration requests to keep mismatched files. ({}:true) Not deleting downloaded file from attic.", C_ARCHIVE_MISMATCHED_FILES);
             } else {
                 LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_MISMATCHED_FILES);
@@ -146,8 +146,8 @@ public class WebsiteDownloadCheck extends Check {
             }
 
             addIssue(new Issue(
-                    this.getClass(),
-                    "Downloaded file from [{}] (via CSS selector [{}#{}] on [{}}) does not match expected checksum [{}] but was [{}].",
+                    this,
+                    "Downloaded file from [{}] (via CSS selector [{} (ix#{})] on [{}}) does not match expected checksum [{}] but was [{}].",
                     downloadLink, cssSelector, selectorIndex, url, expectedChecksum, checksum
             ));
         }
@@ -156,18 +156,23 @@ public class WebsiteDownloadCheck extends Check {
     }
 
     @Override
-    public String getName() {
-        return NAME;
+    public String getCheckId() {
+        return this.id;
+    }
+
+    @Override
+    public String getCheckType() {
+        return TYPE;
     }
 
     @Override
     public boolean disabled() {
-        return !configuration.isCheckEnabled(ID);
+        return !configuration.isCheckEnabled(this);
     }
 
     @Override
     public boolean configurationComplete() {
-        return configuration.isCheckConfigurationComplete(ID, Arrays.asList(
+        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
                 C_URL,
                 C_CSS_SELECTOR,
                 C_EXPECTED_SHA256_CHECKSUM,

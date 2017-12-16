@@ -19,14 +19,13 @@ package horse.wtf.auditshmaudit.configuration;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
-import com.google.inject.Singleton;
+import horse.wtf.auditshmaudit.checks.Check;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Map;
 
-@Singleton
 public class Configuration {
 
     private static final Logger LOG = LogManager.getLogger(Configuration.class);
@@ -35,13 +34,13 @@ public class Configuration {
     public String atticFolder;
 
     @JsonProperty
-    public Map<String, Map<String, Object>> checks;
+    public List<Map<String, Object>> checks;
 
     public boolean isComplete() {
         return checks != null && !Strings.isNullOrEmpty(atticFolder);
     }
 
-    public String getString(String check, String key) {
+    public String getString(Check check, String key) {
         Object o = getObject(check, key);
 
         if (o == null) {
@@ -55,34 +54,46 @@ public class Configuration {
         }
     }
 
-    public Boolean getBoolean(String check, String key) {
+    public Boolean getBoolean(Check check, String key) {
         Object o = getObject(check, key);
 
         return o == null ? false : (Boolean) o;
     }
 
-    public Integer getInt(String check, String key) {
+    public Integer getInt(Check check, String key) {
         Object o = getObject(check, key);
 
         return o == null ? null : (Integer) o;
     }
 
-    public Object getObject(String check, String key) {
-        if(!checks.containsKey(check)) {
-            return null;
-        }
-
-        return checks.get(check).getOrDefault(key, null);
+    public Object getObject(Check check, String key) {
+        return findCheckConfig(check).getOrDefault(key, null);
     }
 
-    public Boolean isCheckEnabled(String check) {
+    private Map<String, Object> findCheckConfig(Check check) {
+        for (Map<String, Object> checkConfig : checks) {
+            if(!checkConfig.containsKey("type") || !checkConfig.containsKey("id")) {
+                throw new RuntimeException("Missing type or ID for check [" + check.getFullCheckIdentifier() + "].");
+            }
+
+            String type = (String) checkConfig.get("type");
+            String id = (String) checkConfig.get("id");
+
+            if (type.equals(check.getCheckType()) && id.equals(check.getCheckId())) {
+                return checkConfig;
+            }
+        }
+
+        throw new RuntimeException("No config for check [" + check.getFullCheckIdentifier() + "] found.");
+    }
+
+    public Boolean isCheckEnabled(Check check) {
         return getBoolean(check, "enabled");
     }
 
-    public boolean isCheckConfigurationComplete(String check, List<String> requiredKeys) {
+    public boolean isCheckConfigurationComplete(Check check, List<String> requiredKeys) {
         for (String requiredKey : requiredKeys) {
             if (getObject(check, requiredKey) == null) {
-                // TODO make sure this works with new way of config structuring (needs ID and type)
                 LOG.error("Requested config variable not set: {}.{}", check, requiredKey);
                 return false;
             }

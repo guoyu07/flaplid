@@ -17,12 +17,14 @@
 
 package horse.wtf.auditshmaudit;
 
+import horse.wtf.auditshmaudit.checks.Check;
+
 public class Issue {
 
-    private final Class check;
+    private final Check check;
     private final String message;
 
-    public Issue(Class check, String message, Object... messageVariables) {
+    public Issue(Check check, String message, Object... messageVariables) {
         this.check = check;
 
         if(messageVariables == null || messageVariables.length == 0) {
@@ -35,8 +37,8 @@ public class Issue {
         }
     }
 
-    public String getCheckName() {
-        return check.getSimpleName();
+    public Check getCheck() {
+        return check;
     }
 
     public String getMessage() {

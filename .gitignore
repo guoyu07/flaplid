@@ -3,5 +3,7 @@ target/
 
 *.iml
 
+attic/
+
 config.yml
 shmaudit.conf

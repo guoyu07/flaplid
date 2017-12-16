@@ -19,7 +19,6 @@ package horse.wtf.auditshmaudit.checks.slack;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import com.google.inject.Inject;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
@@ -32,8 +31,7 @@ import java.util.List;
 
 public class SlackTeamCheck {
 
-    /*private static final String NAME = "Slack: Team Members";
-
+    /*
     private final Configuration configuration;
     private final OkHttpClient httpClient;
     private final ObjectMapper om;
@@ -102,11 +100,6 @@ public class SlackTeamCheck {
         }
 
         return issues();
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
     }
 
     @Override
