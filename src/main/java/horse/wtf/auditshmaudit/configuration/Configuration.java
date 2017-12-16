@@ -61,6 +61,12 @@ public class Configuration {
         return o == null ? false : (Boolean) o;
     }
 
+    public Integer getInt(String check, String key) {
+        Object o = getObject(check, key);
+
+        return o == null ? null : (Integer) o;
+    }
+
     public Object getObject(String check, String key) {
         if(!checks.containsKey(check)) {
             return null;

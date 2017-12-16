@@ -47,6 +47,7 @@ public class WebsiteDownloadCheck extends Check {
 
     private static final String C_URL = "url";
     private static final String C_CSS_SELECTOR = "css_selector";
+    private static final String C_CSS_SELECTOR_INDEX = "css_selector_index";
     private static final String C_EXPECTED_SHA256_CHECKSUM = "expected_sha256_checksum";
     private static final String C_ARCHIVE_ALL_FILES = "archive_all_files";
     private static final String C_ARCHIVE_MISMATCHED_FILES = "archive_mismatched_files";
@@ -65,6 +66,7 @@ public class WebsiteDownloadCheck extends Check {
     @Override
     protected List<Issue> check() {
         String cssSelector = configuration.getString(ID, C_CSS_SELECTOR);
+        int selectorIndex = configuration.getInt(ID, C_CSS_SELECTOR_INDEX);
         String url = configuration.getString(ID, C_URL);
 
         PhantomJSDriver driver = PhantomJS.buildDriver(PhantomJS.randomUserAgent());
@@ -72,13 +74,20 @@ public class WebsiteDownloadCheck extends Check {
         String downloadLink;
         try {
             driver.get(url);
-            WebElement element = driver.findElement(By.cssSelector(cssSelector));
+            List<WebElement> elements = driver.findElements(By.cssSelector(cssSelector));
+
+            if (elements.size() <= selectorIndex) {
+                throw new RuntimeException("Requested CSS selector index [" + selectorIndex + "] but only found [" + elements.size() + "] elements. (remember: index starts at 0)");
+            }
+
+            WebElement element = elements.get(selectorIndex);
+
             downloadLink = element.getAttribute("href");
             if(downloadLink == null) {
-                throw new RuntimeException("First element at [" + cssSelector + "] on [" + url + "] does not have a href attribute. Cannot follow for download.");
+                throw new RuntimeException("Element #" + selectorIndex + " of [" + cssSelector + "] on [" + url + "] does not have a href attribute. Cannot follow for download.");
             }
         } catch (NoSuchElementException e) {
-            throw new RuntimeException("Could not find element at [" + cssSelector + "] on [" + url + "].");
+            throw new RuntimeException("Could not find any element at [" + cssSelector + "] on [" + url + "].");
         }
 
         // Follow link and download file to attic.
@@ -138,8 +147,8 @@ public class WebsiteDownloadCheck extends Check {
 
             addIssue(new Issue(
                     this.getClass(),
-                    "Downloaded file from [{}] (via CSS selector [{}] on [{}}) does not match expected checksum [{}] but was [{}].",
-                    downloadLink, cssSelector, url, expectedChecksum, checksum
+                    "Downloaded file from [{}] (via CSS selector [{}#{}] on [{}}) does not match expected checksum [{}] but was [{}].",
+                    downloadLink, cssSelector, selectorIndex, url, expectedChecksum, checksum
             ));
         }
 
