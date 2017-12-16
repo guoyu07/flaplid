@@ -18,19 +18,23 @@
 package horse.wtf.auditshmaudit;
 
 import com.beust.jcommander.JCommander;
-import com.github.joschi.jadconfig.JadConfig;
-import com.github.joschi.jadconfig.RepositoryException;
-import com.github.joschi.jadconfig.ValidationException;
-import com.github.joschi.jadconfig.repositories.PropertiesRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.CharSource;
+import com.google.common.io.Files;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import horse.wtf.auditshmaudit.checks.Check;
 import horse.wtf.auditshmaudit.checks.CheckModule;
-import horse.wtf.auditshmaudit.checks.FatalCheckException;
+import horse.wtf.auditshmaudit.configuration.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
+
+import java.io.File;
+import java.io.IOException;
 
 public class Main {
 
@@ -42,7 +46,6 @@ public class Main {
         LOG.info("Starting up.");
 
         final CLIArguments cliArguments = new CLIArguments();
-        final Configuration configuration = new Configuration();
 
         // Parse CLI arguments.
         JCommander.newBuilder()
@@ -51,11 +54,21 @@ public class Main {
                 .parse(argv);
 
         // Parse configuration.
+        Configuration configuration = null;
         try {
-            new JadConfig(new PropertiesRepository(cliArguments.getConfigFilePath()), configuration).process();
-        } catch (RepositoryException | ValidationException e) {
-            LOG.error("Could not read config.", e);
-            Runtime.getRuntime().exit(FAILURE);
+            File file = new File(cliArguments.getConfigFilePath());
+            CharSource source = Files.asCharSource(file, Charsets.UTF_8);
+
+            ObjectMapper configObjectMapper = new ObjectMapper(new YAMLFactory());
+            configuration = configObjectMapper.readValue(source.read(), Configuration.class);
+        } catch (Exception e) {
+            LOG.info("Could not read configuration file.", e);
+            System.exit(FAILURE);
+        }
+
+        if (!configuration.isComplete()) {
+            LOG.info("Configuration is incomplete. Please refer to the example configuration file.");
+            System.exit(FAILURE);
         }
 
         Injector injector = Guice.createInjector(new CheckModule(configuration));

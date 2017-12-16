@@ -1,6 +1,6 @@
 checks:
   aws_iam:
-    enabled: true
+    enabled: false
     access_key:
     access_key_secret:
     maximum_user_inactivity_days: 180
@@ -9,7 +9,7 @@ checks:
     maximum_password_age: 180
 
   aws_security_groups:
-    enabled: true
+    enabled: false
     access_key:
     access_key_secret:
     critical_ports_inbound:
@@ -27,14 +27,14 @@ checks:
       - tcp/587
 
   github_organization:
-    enabled: true
+    enabled: false
     organization_name:
     username: 
     access_key:
 
   slack_team:
-    enabled: true
+    enabled: false
     oauth_token:
 
   website_download:
-    enabled: true
+    enabled: false

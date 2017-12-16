@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import horse.wtf.auditshmaudit.Configuration;
+import horse.wtf.auditshmaudit.configuration.Configuration;
 import okhttp3.OkHttpClient;
 
 import java.util.concurrent.TimeUnit;

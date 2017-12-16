@@ -26,7 +26,7 @@ import com.amazonaws.services.identitymanagement.model.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import horse.wtf.auditshmaudit.Configuration;
+import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
 import horse.wtf.auditshmaudit.checks.aws.convenience.AWSAccessKey;
@@ -35,9 +35,9 @@ import org.joda.time.DateTime;
 
 import java.util.List;
 
-public class AWSIAMCheck extends Check {
+public class AWSIAMCheck {
 
-    private static final String NAME = "AWS: IAM";
+    /*private static final String NAME = "AWS: IAM";
 
     private final Configuration configuration;
 
@@ -165,6 +165,6 @@ public class AWSIAMCheck extends Check {
                 && configuration.getCheckAWSIAMMaximumAccessKeyInactivityDays() > 0
                 && configuration.getCheckAWSIAMMinimumPasswordLength() > 0
                 && configuration.getCheckAWSIAMMaximumPasswordAge() > 0;
-    }
+    }*/
 
 }

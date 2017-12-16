@@ -19,7 +19,7 @@ package horse.wtf.auditshmaudit.checks.github;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
-import horse.wtf.auditshmaudit.Configuration;
+import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
 import org.kohsuke.github.GHOrganization;
@@ -30,9 +30,9 @@ import org.kohsuke.github.PagedIterable;
 import java.io.IOException;
 import java.util.List;
 
-public class GitHubOrganizationCheck extends Check {
+public class GitHubOrganizationCheck {
 
-    private static final String NAME = "GitHub: Organization Members";
+    /*private static final String NAME = "GitHub: Organization Members";
 
     private final Configuration configuration;
 
@@ -78,6 +78,6 @@ public class GitHubOrganizationCheck extends Check {
         return !Strings.isNullOrEmpty(configuration.getCheckGitHubOrganizationUsername())
                 && !Strings.isNullOrEmpty(configuration.getCheckGitHubOrganizationAccessKey())
                 && !Strings.isNullOrEmpty(configuration.getCheckGitHubOrganizationOrganizationName());
-    }
+    }*/
 
 }

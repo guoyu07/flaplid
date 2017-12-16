@@ -20,7 +20,7 @@ package horse.wtf.auditshmaudit.checks.slack;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
-import horse.wtf.auditshmaudit.Configuration;
+import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
 import horse.wtf.auditshmaudit.checks.slack.models.SlackMember;
@@ -30,9 +30,9 @@ import okhttp3.*;
 import java.io.IOException;
 import java.util.List;
 
-public class SlackTeamCheck extends Check {
+public class SlackTeamCheck {
 
-    private static final String NAME = "Slack: Team Members";
+    /*private static final String NAME = "Slack: Team Members";
 
     private final Configuration configuration;
     private final OkHttpClient httpClient;
@@ -117,6 +117,6 @@ public class SlackTeamCheck extends Check {
     @Override
     public boolean configurationComplete() {
         return !Strings.isNullOrEmpty(configuration.getCheckSlackTeamOauthToken());
-    }
+    }*/
 
 }

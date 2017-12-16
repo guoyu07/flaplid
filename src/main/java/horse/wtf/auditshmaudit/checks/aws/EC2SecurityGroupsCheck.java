@@ -25,7 +25,7 @@ import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.*;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
-import horse.wtf.auditshmaudit.Configuration;
+import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
 import org.apache.logging.log4j.LogManager;
@@ -33,9 +33,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
-public class EC2SecurityGroupsCheck extends Check {
+public class EC2SecurityGroupsCheck {
 
-    private static final Logger LOG = LogManager.getLogger(EC2SecurityGroupsCheck.class);
+    /*private static final Logger LOG = LogManager.getLogger(EC2SecurityGroupsCheck.class);
 
     private static final String NAME = "AWS: Security Groups";
 
@@ -137,6 +137,6 @@ public class EC2SecurityGroupsCheck extends Check {
     public boolean configurationComplete() {
         return !Strings.isNullOrEmpty(configuration.getCheckAWSSecurityGroupsAccessKeyId())
                 && !Strings.isNullOrEmpty(configuration.getCheckAWSSecurityGroupsAccessKeySecret());
-    }
+    }*/
 
 }

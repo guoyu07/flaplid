@@ -18,9 +18,9 @@
 package horse.wtf.auditshmaudit.checks;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import horse.wtf.auditshmaudit.Configuration;
 import horse.wtf.auditshmaudit.Issue;
+import horse.wtf.auditshmaudit.attic.Attic;
+import horse.wtf.auditshmaudit.configuration.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,13 +32,20 @@ public abstract class Check {
 
     private final ImmutableList.Builder<Issue> issuesBuilder;
 
+    private final Configuration configuration;
+    private final String id;
+    private final Attic attic;
+
     protected abstract List<Issue> check();
     public abstract String getName();
     public abstract boolean disabled();
     public abstract boolean configurationComplete();
 
-    protected Check() {
+    protected Check(String id, Configuration configuration) {
         this.issuesBuilder = new ImmutableList.Builder<>();
+        this.id = id;
+        this.configuration = configuration;
+        this.attic = new Attic(id, configuration.atticFolder);
     }
 
     public List<Issue> run() throws FatalCheckException {
@@ -53,6 +60,10 @@ public abstract class Check {
         } catch(Exception e){
             throw new FatalCheckException(e);
         }
+    }
+
+    protected Attic getAttic() {
+        return attic;
     }
 
     protected void addIssue(Issue issue) {
