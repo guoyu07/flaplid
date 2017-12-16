@@ -8,6 +8,13 @@
     <artifactId>auditshmaudit</artifactId>
     <version>0.1-SNAPSHOT</version>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <properties>
         <log4j.version>2.4.1</log4j.version>
         <jcommander.version>1.72</jcommander.version>
@@ -19,6 +26,7 @@
         <guava.version>22.0</guava.version>
         <reflections.version>0.9.11</reflections.version>
         <github.version>1.89</github.version>
+        <ghostdriver.version>2.1.0</ghostdriver.version>
     </properties>
 
     <dependencies>
@@ -91,6 +99,11 @@
             <groupId>org.kohsuke</groupId>
             <artifactId>github-api</artifactId>
             <version>${github.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.detro</groupId>
+            <artifactId>ghostdriver</artifactId>
+            <version>${ghostdriver.version}</version>
         </dependency>
     </dependencies>
 

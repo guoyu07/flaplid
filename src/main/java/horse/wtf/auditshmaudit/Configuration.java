@@ -46,6 +46,9 @@ public class Configuration {
     @Parameter(value = "check_aws_security_groups_enabled", required = true)
     private boolean checkAWSSecurityGroupsEnabled;
 
+    @Parameter(value = "check_website_downloads_enabled", required = true)
+    private boolean checkWebsiteDownloadsEnabled;
+
     // AWS: IAM
     @Parameter(value = "check_aws_iam_access_key_id")
     private String checkAWSIAMAccessKeyId;
@@ -106,6 +109,10 @@ public class Configuration {
 
     public boolean isCheckAWSSecurityGroupsEnabled() {
         return checkAWSSecurityGroupsEnabled;
+    }
+
+    public boolean isCheckWebsiteDownloadsEnabled() {
+        return checkWebsiteDownloadsEnabled;
     }
 
     public String getCheckAWSIAMAccessKeyId() {
