@@ -23,23 +23,34 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
 import com.amazonaws.services.identitymanagement.model.*;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import horse.wtf.auditshmaudit.checks.Check;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
-import horse.wtf.auditshmaudit.checks.Check;
 import horse.wtf.auditshmaudit.checks.aws.convenience.AWSAccessKey;
 import horse.wtf.auditshmaudit.checks.aws.convenience.AWSUser;
 import org.joda.time.DateTime;
 
+import java.util.Arrays;
 import java.util.List;
 
-public class AWSIAMCheck {
+public class AWSIAMCheck extends Check {
 
-    /*    private final Configuration configuration;
+    public static final String TYPE = "aws_iam";
 
-    @Inject
-    public AWSIAMCheck(Configuration configuration) {
+    private static final String C_ACCESS_KEY = "access_key";
+    private static final String C_ACCESS_KEY_SECRET = "access_key_secret";
+
+    private static final String C_MAX_USER_INACTIVITY_DAYS = "maximum_user_inactivity_days";
+    private static final String C_MAX_ACCESS_KEY_INACTIVITY_DAYS = "maximum_access_key_inactivity_days";
+    private static final String C_MIN_PASSWORD_LENGTH = "minimum_password_length";
+    private static final String C_MAX_PASSWORD_AGE = "maximum_password_age";
+
+    private final Configuration configuration;
+
+    public AWSIAMCheck(String checkId, Configuration configuration) {
+        super(checkId, configuration);
+
         this.configuration = configuration;
     }
 
@@ -47,22 +58,24 @@ public class AWSIAMCheck {
         AmazonIdentityManagement client = AmazonIdentityManagementClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(
                         new BasicAWSCredentials(
-                                configuration.getCheckAWSIAMAccessKeyId(),
-                                configuration.getCheckAWSIAMAccessKeySecret())
-                        ))
+                                configuration.getString(this, C_ACCESS_KEY),
+                                configuration.getString(this, C_ACCESS_KEY_SECRET))
+                ))
                 .withRegion(Regions.DEFAULT_REGION)
                 .build();
 
         // Get users.
         List<AWSUser> users = Lists.newArrayList();
         ListUsersResult luResult = client.listUsers();
-        if(luResult.isTruncated()) { throw new RuntimeException("Users result is truncated!"); }
+        if (luResult.isTruncated()) {
+            throw new RuntimeException("Users result is truncated!");
+        }
         for (User userInfo : luResult.getUsers()) {
             // Get access keys of this user.
             ListAccessKeysRequest keysRequest = new ListAccessKeysRequest();
             keysRequest.setUserName(userInfo.getUserName());
             ListAccessKeysResult accessKeys = client.listAccessKeys(keysRequest);
-            if(accessKeys.isTruncated()) {
+            if (accessKeys.isTruncated()) {
                 throw new RuntimeException("Access Keys result of user [" + userInfo.getUserName() + "] is truncated!");
             }
 
@@ -84,7 +97,7 @@ public class AWSIAMCheck {
             // Get all virtual and physical MFA devices and count them.
             int mfaCount = 0;
             ListMFADevicesResult mfaResult = client.listMFADevices(new ListMFADevicesRequest(userInfo.getUserName()));
-            if(mfaResult.isTruncated()) {
+            if (mfaResult.isTruncated()) {
                 throw new RuntimeException("MFA result of user [" + userInfo.getUserName() + "] is truncated!");
             }
 
@@ -103,60 +116,67 @@ public class AWSIAMCheck {
         for (AWSUser user : users) {
             // User not in use?
             if (user.getPasswordLastUsed() != null
-                    && user.getPasswordLastUsed().isBefore(DateTime.now().minusDays(configuration.getCheckAWSIAMMaximumUserInactivityDays()))) {
-                addIssue(new Issue(this.getClass(), "User with no login in last <{}> days: {}. Last login: {}",
-                        configuration.getCheckAWSIAMMaximumUserInactivityDays(), user.getUsername(), user.getPasswordLastUsed()));
+                    && user.getPasswordLastUsed().isBefore(DateTime.now().minusDays(configuration.getInt(this, C_MAX_USER_INACTIVITY_DAYS)))) {
+                addIssue(new Issue(this, "User with no login in last <{}> days: {}. Last login: {}",
+                        configuration.getInt(this, C_MAX_USER_INACTIVITY_DAYS), user.getUsername(), user.getPasswordLastUsed()));
             }
 
             // Access key not in use?
             for (AWSAccessKey accessKey : user.getAccessKeys()) {
-                if(accessKey.getStatus().equals(AWSAccessKey.STATUS.ACTIVE)
-                        && accessKey.getLastUsed().isBefore(DateTime.now().minusDays(configuration.getCheckAWSIAMMaximumAccessKeyInactivityDays()))) {
-                    addIssue(new Issue(this.getClass(), "An active access key for user [{}] has not been used in last <{}> days. Last used: {}, created at: {}",
-                            user.getUsername(), configuration.getCheckAWSIAMMaximumAccessKeyInactivityDays(), accessKey.getLastUsed(), accessKey.getCreateDate()));
+                if (accessKey.getStatus().equals(AWSAccessKey.STATUS.ACTIVE)
+                        && accessKey.getLastUsed().isBefore(DateTime.now().minusDays(configuration.getInt(this, C_MAX_ACCESS_KEY_INACTIVITY_DAYS)))) {
+                    addIssue(new Issue(this, "An active access key for user [{}] has not been used in last <{}> days. Last used: {}, created at: {}",
+                            user.getUsername(), configuration.getInt(this, C_MAX_ACCESS_KEY_INACTIVITY_DAYS), accessKey.getLastUsed(), accessKey.getCreateDate()));
                 }
             }
 
             // 2FA enabled if this is a console login user?
-            if(user.getPasswordLastUsed() != null && user.getMfaDeviceCount() == 0) {
-                addIssue(new Issue(this.getClass(), "User has logged in to console in the past but no MFA device configured: {}", user.getUsername()));
+            if (user.getPasswordLastUsed() != null && user.getMfaDeviceCount() == 0) {
+                addIssue(new Issue(this, "User has logged in to console in the past but no MFA device configured: {}", user.getUsername()));
             }
         }
 
         // Do we have a proper password policy set?
         PasswordPolicy passwordPolicy = client.getAccountPasswordPolicy().getPasswordPolicy();
-        if(passwordPolicy.getMinimumPasswordLength() < configuration.getCheckAWSIAMMinimumPasswordLength()) {
-            addIssue(new Issue(this.getClass(), "There is no password policy that enforces passwords with at least <{}> characters.",
-                    configuration.getCheckAWSIAMMinimumPasswordLength()));
+        if (passwordPolicy.getMinimumPasswordLength() < configuration.getInt(this, C_MIN_PASSWORD_LENGTH)) {
+            addIssue(new Issue(this, "There is no password policy that enforces passwords with at least <{}> characters.",
+                    configuration.getInt(this, C_MIN_PASSWORD_LENGTH)));
         }
 
-        if(passwordPolicy.getMaxPasswordAge() == null
+        if (passwordPolicy.getMaxPasswordAge() == null
                 || passwordPolicy.getMaxPasswordAge() <= 0
-                || passwordPolicy.getMaxPasswordAge() < configuration.getCheckAWSIAMMaximumPasswordAge()) {
-            addIssue(new Issue(this.getClass(), "There is no password policy that enforces password change after <{}> days.",
-                    configuration.getCheckAWSIAMMaximumPasswordAge()));
+                || passwordPolicy.getMaxPasswordAge() < configuration.getInt(this, C_MAX_PASSWORD_AGE)) {
+            addIssue(new Issue(this, "There is no password policy that enforces password change after <{}> days.",
+                    configuration.getInt(this, C_MAX_PASSWORD_AGE)));
         }
 
-        if(passwordPolicy.getPasswordReusePrevention() == null || passwordPolicy.getPasswordReusePrevention() <= 0) {
-            addIssue(new Issue(this.getClass(), "Password policy allows password reuse."));
+        if (passwordPolicy.getPasswordReusePrevention() == null || passwordPolicy.getPasswordReusePrevention() <= 0) {
+            addIssue(new Issue(this, "Password policy allows password reuse."));
         }
 
         return issues();
     }
 
     @Override
+    public String getCheckType() {
+        return TYPE;
+    }
+
+    @Override
     public boolean disabled() {
-        return !configuration.isCheckAWSIAMEnabled();
+        return !configuration.isCheckEnabled(this);
     }
 
     @Override
     public boolean configurationComplete() {
-        return !Strings.isNullOrEmpty(configuration.getCheckAWSIAMAccessKeyId())
-                && !Strings.isNullOrEmpty(configuration.getCheckAWSIAMAccessKeySecret())
-                && configuration.getCheckAWSIAMMaximumUserInactivityDays() > 0
-                && configuration.getCheckAWSIAMMaximumAccessKeyInactivityDays() > 0
-                && configuration.getCheckAWSIAMMinimumPasswordLength() > 0
-                && configuration.getCheckAWSIAMMaximumPasswordAge() > 0;
-    }*/
+        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+                C_ACCESS_KEY,
+                C_ACCESS_KEY_SECRET,
+                C_MAX_USER_INACTIVITY_DAYS,
+                C_MAX_ACCESS_KEY_INACTIVITY_DAYS,
+                C_MAX_PASSWORD_AGE,
+                C_MIN_PASSWORD_LENGTH
+        ));
+    }
 
 }

@@ -21,19 +21,13 @@ import com.google.common.hash.Hashing;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
-import horse.wtf.auditshmaudit.helpers.PhantomJS;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
+import org.joda.time.DateTime;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,23 +35,21 @@ public class WebsiteDownloadCheck extends Check {
 
     private static final Logger LOG = LogManager.getLogger(WebsiteDownloadCheck.class);
 
-    private static final String TYPE = "website_download";
+    public static final String TYPE = "website_download";
 
     private static final String C_URL = "url";
     private static final String C_CSS_SELECTOR = "css_selector";
     private static final String C_CSS_SELECTOR_INDEX = "css_selector_index";
     private static final String C_EXPECTED_SHA256_CHECKSUM = "expected_sha256_checksum";
-    private static final String C_ARCHIVE_ALL_FILES = "archive_all_files";
+    private static final String C_ARCHIVE_MATCHED_FILES = "archive_matched_files";
     private static final String C_ARCHIVE_MISMATCHED_FILES = "archive_mismatched_files";
 
-    private final String id;
     private final Configuration configuration;
     private final OkHttpClient httpClient;
 
     public WebsiteDownloadCheck(String id, Configuration configuration, OkHttpClient httpClient) {
-        super(configuration);
+        super(id, configuration);
 
-        this.id = id;
         this.configuration = configuration;
         this.httpClient = httpClient;
     }
@@ -69,67 +61,32 @@ public class WebsiteDownloadCheck extends Check {
         String url = configuration.getString(this, C_URL);
 
         PhantomJSDriver driver = PhantomJS.buildDriver(PhantomJS.randomUserAgent());
+        WebElement element = PhantomJS.getElementFromSite(driver, cssSelector, selectorIndex, url);
 
-        String downloadLink;
-        try {
-            LOG.info("Opening [{}] to get download link via CSS selector [{} (ix#{})].", url, cssSelector, selectorIndex);
-            driver.get(url);
-            List<WebElement> elements = driver.findElements(By.cssSelector(cssSelector));
-
-            if (elements.size() <= selectorIndex) {
-                throw new RuntimeException("Requested CSS selector index [" + selectorIndex + "] but only found [" + elements.size() + "] elements. (remember: index starts at 0)");
-            }
-
-            WebElement element = elements.get(selectorIndex);
-
-            downloadLink = element.getAttribute("href");
-            if(downloadLink == null) {
-                throw new RuntimeException("Element #" + selectorIndex + " of [" + cssSelector + "] on [" + url + "] does not have a href attribute. Cannot follow for download.");
-            }
-        } catch (NoSuchElementException e) {
-            throw new RuntimeException("Could not find any element at [" + cssSelector + "] on [" + url + "].");
+        String downloadLink = element.getAttribute("href");
+        if(downloadLink == null) {
+            throw new RuntimeException("Element #" + selectorIndex + " of [" + cssSelector + "] on [" + url + "] does not have a href attribute. Cannot follow for download.");
         }
 
         // Follow link and download file to attic.
-        File downloadedFile;
-        String downloadedFilePath;
-        byte[] downloadedBytes;
-        try {
-            LOG.info("Downloading file from [{}].", downloadLink);
-            Response response = this.httpClient.newCall(
-                    new Request.Builder()
-                            .url(downloadLink)
-                            .addHeader("User-Agent", PhantomJS.randomUserAgent())
-                    .build())
-                    .execute();
-
-            if(response.code() != 200) {
-                throw new RuntimeException("Excepted HTTP response code [200] but got [" + response.code() + "].");
-            }
-
-            downloadedBytes = response.body().bytes();
-            downloadedFile = getAttic().writeFile(downloadedBytes);
-            downloadedFilePath = downloadedFile.getCanonicalPath();
-            response.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Could not download file.", e);
-        }
+        DownloadResult downloadResult = FileDownloader.downloadFileToAttic(this.getAttic(), this.httpClient, downloadLink, DateTime.now());
 
         // Calculate and compare checksum.
         String expectedChecksum = configuration.getString(this, C_EXPECTED_SHA256_CHECKSUM);
         LOG.info("Completed download. Comparing checksums. Expecting checksum [{}]", expectedChecksum);
 
-        String checksum = Hashing.sha256().hashBytes(downloadedBytes).toString();
+        String checksum = Hashing.sha256().hashBytes(downloadResult.getDownloadedBytes()).toString();
         if (checksum.equals(expectedChecksum)) {
             // Checksums match. Delete the file if no archival was configured.
             LOG.info("Checksums match. ({}=={})", expectedChecksum, checksum);
 
-            if(configuration.getBoolean(this, C_ARCHIVE_ALL_FILES)) {
-               LOG.info("Configuration requests to keep all files. ({}:true) Not deleting downloaded file from attic.", C_ARCHIVE_ALL_FILES);
+            if(configuration.getBoolean(this, C_ARCHIVE_MATCHED_FILES)) {
+               LOG.info("Configuration requests to keep all files. ({}:true) Not deleting downloaded file from attic. File is at [{}].",
+                       C_ARCHIVE_MATCHED_FILES, downloadResult.getDownloadedFilePath());
             } else {
-                LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_ALL_FILES);
-                if(!downloadedFile.delete()) {
-                    LOG.error("Could not delete file at [{}].", downloadedFilePath);
+                LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_MATCHED_FILES);
+                if(!downloadResult.getDownloadedFile().delete()) {
+                    LOG.error("Could not delete file at [{}].", downloadResult.getDownloadedFilePath());
                 }
             }
         } else {
@@ -137,11 +94,12 @@ public class WebsiteDownloadCheck extends Check {
             LOG.warn("Checksums do not match! ({}!={})", expectedChecksum, checksum);
 
             if(configuration.getBoolean(this, C_ARCHIVE_MISMATCHED_FILES)) {
-                LOG.info("Configuration requests to keep mismatched files. ({}:true) Not deleting downloaded file from attic.", C_ARCHIVE_MISMATCHED_FILES);
+                LOG.info("Configuration requests to keep mismatched files. ({}:true) Not deleting downloaded file from attic. File is at [{}]",
+                        C_ARCHIVE_MISMATCHED_FILES, downloadResult.getDownloadedFilePath());
             } else {
                 LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_MISMATCHED_FILES);
-                if(!downloadedFile.delete()) {
-                    LOG.error("Could not delete file at [{}].", downloadedFilePath);
+                if(!downloadResult.getDownloadedFile().delete()) {
+                    LOG.error("Could not delete file at [{}].", downloadResult.getDownloadedFilePath());
                 }
             }
 
@@ -153,11 +111,6 @@ public class WebsiteDownloadCheck extends Check {
         }
 
         return issues();
-    }
-
-    @Override
-    public String getCheckId() {
-        return this.id;
     }
 
     @Override
@@ -176,7 +129,7 @@ public class WebsiteDownloadCheck extends Check {
                 C_URL,
                 C_CSS_SELECTOR,
                 C_EXPECTED_SHA256_CHECKSUM,
-                C_ARCHIVE_ALL_FILES,
+                C_ARCHIVE_MATCHED_FILES,
                 C_ARCHIVE_MISMATCHED_FILES
         ));
     }

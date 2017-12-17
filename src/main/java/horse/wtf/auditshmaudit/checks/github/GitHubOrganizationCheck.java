@@ -17,7 +17,6 @@
 
 package horse.wtf.auditshmaudit.checks.github;
 
-import com.google.common.base.Strings;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
@@ -27,16 +26,22 @@ import org.kohsuke.github.GitHub;
 import org.kohsuke.github.PagedIterable;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
-public class GitHubOrganizationCheck {
+public class GitHubOrganizationCheck extends Check {
 
-    /*
+    public static final String TYPE = "github_organization";
+
+    private static final String C_ORGANIZATION_NAME = "organization_name";
+    private static final String C_USERNAME = "username";
+    private static final String C_ACCESS_KEY = "access_key";
 
     private final Configuration configuration;
 
-    @Inject
-    public GitHubOrganizationCheck(Configuration configuration) {
+    public GitHubOrganizationCheck(String checkId, Configuration configuration) {
+        super(checkId, configuration);
+
         this.configuration = configuration;
     }
 
@@ -44,16 +49,16 @@ public class GitHubOrganizationCheck {
     protected List<Issue> check() {
         try {
             GitHub client = GitHub.connect(
-                    configuration.getCheckGitHubOrganizationUsername(),
-                    configuration.getCheckGitHubOrganizationAccessKey()
+                    configuration.getString(this, C_USERNAME),
+                    configuration.getString(this, C_ACCESS_KEY)
             );
             GHOrganization organization = client.getOrganization(
-                    configuration.getCheckGitHubOrganizationOrganizationName()
+                    configuration.getString(this, C_ORGANIZATION_NAME)
             );
 
             PagedIterable<GHUser> usersWithoutMFA = organization.listMembersWithFilter("2fa_disabled");
             for (GHUser user : usersWithoutMFA) {
-                addIssue(new Issue(this.getClass(), "User without enabled MFA: {}", user.getLogin()));
+                addIssue(new Issue(this, "User without enabled MFA: {}", user.getLogin()));
             }
         } catch (IOException e) {
             throw new RuntimeException("Error when trying to communicate with GitHub API.", e);
@@ -63,15 +68,21 @@ public class GitHubOrganizationCheck {
     }
 
     @Override
+    public String getCheckType() {
+        return TYPE;
+    }
+
+    @Override
     public boolean disabled() {
-        return !configuration.isCheckGitHubOrganizationEnabled();
+        return !configuration.isCheckEnabled(this);
     }
 
     @Override
     public boolean configurationComplete() {
-        return !Strings.isNullOrEmpty(configuration.getCheckGitHubOrganizationUsername())
-                && !Strings.isNullOrEmpty(configuration.getCheckGitHubOrganizationAccessKey())
-                && !Strings.isNullOrEmpty(configuration.getCheckGitHubOrganizationOrganizationName());
-    }*/
-
+        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+                C_ORGANIZATION_NAME,
+                C_USERNAME,
+                C_ACCESS_KEY
+        ));
+    }
 }

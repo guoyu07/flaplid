@@ -49,8 +49,8 @@ public class Attic {
         }
     }
 
-    public File writeFile(byte[] bytes) throws IOException {
-        File file = new File(checkIdFolder + "/" + DateTime.now().toString(DateTimeFormat.forPattern("yyyy-mm-dd_HH-mm-ss")) + ".atticfile");
+    public File writeFile(byte[] bytes, String ending, DateTime timestamp) throws IOException {
+        File file = new File(checkIdFolder + "/" + timestamp.toString(DateTimeFormat.forPattern("yyyy-mm-dd_HH-mm-ss")) + "." + ending);
 
         ByteSink sink = Files.asByteSink(file);
         sink.write(bytes);

@@ -32,16 +32,17 @@ public abstract class Check {
 
     private final ImmutableList.Builder<Issue> issuesBuilder;
 
+    private final String id;
     private final Configuration configuration;
     private Attic attic;
 
     protected abstract List<Issue> check();
-    public abstract String getCheckId();
     public abstract String getCheckType();
     public abstract boolean disabled();
     public abstract boolean configurationComplete();
 
-    protected Check(Configuration configuration) {
+    protected Check(String id, Configuration configuration) {
+        this.id = id;
         this.issuesBuilder = new ImmutableList.Builder<>();
         this.configuration = configuration;
     }
@@ -60,6 +61,11 @@ public abstract class Check {
         } catch(Exception e){
             throw new FatalCheckException(e);
         }
+
+    }
+
+    public String getCheckId() {
+        return id;
     }
 
     public String getFullCheckIdentifier() {

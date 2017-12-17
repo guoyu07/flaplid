@@ -15,17 +15,42 @@
  *  along with auditshmaudit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package horse.wtf.auditshmaudit.helpers;
+package horse.wtf.auditshmaudit.checks.supplychain;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class PhantomJS {
+
+    private static final Logger LOG = LogManager.getLogger(PhantomJS.class);
+
+    public static WebElement getElementFromSite(PhantomJSDriver driver, String cssSelector, int selectorIndex, String url) {
+        try {
+            LOG.info("Opening [{}] to get element link via CSS selector [{} (ix#{})].", url, cssSelector, selectorIndex);
+            driver.get(url);
+            List<WebElement> elements = driver.findElements(By.cssSelector(cssSelector));
+
+            if (elements.size() <= selectorIndex) {
+                throw new RuntimeException("Requested CSS selector index [" + selectorIndex + "] but only found [" + elements.size() + "] elements. (remember: index starts at 0)");
+            }
+
+            return elements.get(selectorIndex);
+        } catch (NoSuchElementException e) {
+            throw new RuntimeException("Could not find any element at [" + cssSelector + "] on [" + url + "].");
+        }
+    }
 
     public static String randomUserAgent() {
         ImmutableList<String> agents = new ImmutableList.Builder<String>()
@@ -58,13 +83,15 @@ public class PhantomJS {
         cliArgsCap.add("--webdriver-loglevel=NONE");
         caps.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, cliArgsCap);
         caps.setCapability("phantomjs.page.settings.userAgent", userAgent);
-        caps.setCapability("phantomjs.page.settings.loadImages", false);
+        caps.setCapability("phantomjs.page.settings.loadImages", true);
         caps.setCapability("phantomjs.page.settings.javascriptEnabled", true);
-
 
         java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(java.util.logging.Level.WARNING);
 
-        return new PhantomJSDriver(caps);
+        PhantomJSDriver driver = new PhantomJSDriver(caps);
+        driver.manage().window().setSize(new Dimension(1440, 900));
+
+        return driver;
     }
 
 }

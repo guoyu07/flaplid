@@ -27,7 +27,12 @@ import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import horse.wtf.auditshmaudit.checks.Check;
 import horse.wtf.auditshmaudit.checks.FatalCheckException;
+import horse.wtf.auditshmaudit.checks.aws.AWSIAMCheck;
+import horse.wtf.auditshmaudit.checks.aws.EC2SecurityGroupsCheck;
+import horse.wtf.auditshmaudit.checks.github.GitHubOrganizationCheck;
+import horse.wtf.auditshmaudit.checks.slack.SlackTeamCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.WebsiteDownloadCheck;
+import horse.wtf.auditshmaudit.checks.supplychain.WebsiteLinkTargetCheck;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import okhttp3.OkHttpClient;
 import org.apache.logging.log4j.LogManager;
@@ -103,8 +108,23 @@ public class Main {
 
             Check check;
             switch (checkType) {
-                case "website_download":
+                case WebsiteDownloadCheck.TYPE:
                     check = new WebsiteDownloadCheck(checkId, configuration, httpClient);
+                    break;
+                case SlackTeamCheck.TYPE:
+                    check = new SlackTeamCheck(checkId, configuration, httpClient, om);
+                    break;
+                case GitHubOrganizationCheck.TYPE:
+                    check = new GitHubOrganizationCheck(checkId, configuration);
+                    break;
+                case EC2SecurityGroupsCheck.TYPE:
+                    check = new EC2SecurityGroupsCheck(checkId, configuration);
+                    break;
+                case AWSIAMCheck.TYPE:
+                    check = new AWSIAMCheck(checkId, configuration);
+                    break;
+                case WebsiteLinkTargetCheck.TYPE:
+                    check = new WebsiteLinkTargetCheck(checkId, configuration);
                     break;
                 default:
                     LOG.error("Unknown check type [{}]. Skipping.", checkType);

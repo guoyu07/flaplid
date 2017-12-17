@@ -19,6 +19,7 @@ package horse.wtf.auditshmaudit.configuration;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import horse.wtf.auditshmaudit.checks.Check;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,6 +67,34 @@ public class Configuration {
         return o == null ? null : (Integer) o;
     }
 
+    public List<String> getListOfStrings(Check check, String key) {
+        Object o = getObject(check, key);
+
+        return o == null ? null : (List) o;
+    }
+
+    public List<PortAndProtocol> getListOfPortsAndProtocols(Check check, String key) {
+        List<String> defs = getListOfStrings(check, key);
+
+        ImmutableList.Builder<PortAndProtocol> ports = new ImmutableList.Builder<>();
+
+        for (String def : defs) {
+            try {
+                if(!def.contains("/")) {
+                    throw new RuntimeException("Malformed port entry.");
+                }
+
+                String[] parts = def.split("/");
+                ports.add(new PortAndProtocol(parts[0], Integer.parseInt(parts[1])));
+            } catch(Exception e) {
+                LOG.error("Could not parse critical port. Skipping.", e);
+                continue;
+            }
+        }
+
+        return ports.build();
+    }
+
     public Object getObject(Check check, String key) {
         return findCheckConfig(check).getOrDefault(key, null);
     }
@@ -100,6 +129,31 @@ public class Configuration {
         }
 
         return true;
+    }
+
+    public class PortAndProtocol {
+
+        private final String protocol;
+        private final int port;
+
+        public PortAndProtocol(String protocol, int port) {
+            this.protocol = protocol;
+            this.port = port;
+        }
+
+        public String getProtocol() {
+            return protocol;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        @Override
+        public String toString() {
+            return protocol + "/" + port;
+        }
+
     }
 
 }

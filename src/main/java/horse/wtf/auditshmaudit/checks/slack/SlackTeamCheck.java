@@ -27,17 +27,21 @@ import horse.wtf.auditshmaudit.checks.slack.models.SlackUsersList;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
-public class SlackTeamCheck {
+public class SlackTeamCheck extends Check {
 
-    /*
+    public static final String TYPE = "slack_team";
+
+    private final String C_OAUTH_TOKEN = "oauth_token";
+
     private final Configuration configuration;
     private final OkHttpClient httpClient;
     private final ObjectMapper om;
 
-    @Inject
-    public SlackTeamCheck(Configuration configuration, OkHttpClient httpClient, ObjectMapper om) {
+    public SlackTeamCheck(String checkId, Configuration configuration, OkHttpClient httpClient, ObjectMapper om) {
+        super(checkId, configuration);
         this.configuration = configuration;
         this.httpClient = httpClient;
         this.om = om;
@@ -52,7 +56,7 @@ public class SlackTeamCheck {
                             .scheme("https")
                             .host("slack.com")
                             .encodedPath("/api/users.list")
-                            .addQueryParameter("token", configuration.getCheckSlackTeamOauthToken())
+                            .addQueryParameter("token", configuration.getString(this, C_OAUTH_TOKEN))
                             .addQueryParameter("include_locale", "false")
                             .addQueryParameter("limit", "0")
                             .addQueryParameter("presence", "false")
@@ -90,7 +94,7 @@ public class SlackTeamCheck {
                 }
 
                 if(!member.has2FA) {
-                    addIssue(new Issue(this.getClass(), "Team member has no MFA device configured: {} ({})", member.name, member.realName));
+                    addIssue(new Issue(this, "Team member has no MFA device configured: {} ({})", member.name, member.realName));
                 }
             }
 
@@ -103,13 +107,20 @@ public class SlackTeamCheck {
     }
 
     @Override
+    public String getCheckType() {
+        return TYPE;
+    }
+
+    @Override
     public boolean disabled() {
-        return !configuration.isCheckSlackTeamEnabled();
+        return !configuration.isCheckEnabled(this);
     }
 
     @Override
     public boolean configurationComplete() {
-        return !Strings.isNullOrEmpty(configuration.getCheckSlackTeamOauthToken());
-    }*/
+        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+                C_OAUTH_TOKEN
+        ));
+    }
 
 }
