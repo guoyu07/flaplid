@@ -103,7 +103,7 @@ public class EC2SecurityGroupsCheck extends Check {
                     // Check if it's open to the IPv4 world.
                     for (IpRange range : permission.getIpv4Ranges()) {
                         if (CIDR_ALL_IPV4.equals(range.getCidrIp())) {
-                            addIssue(new Issue(this, "[{}] Security group [{}] has critical port <{}> open to [{}] {} in region.",
+                            addIssue(new Issue(this, "[{}] Security group [{}] has critical port <{}> open to [{}] {}.",
                                     region.getName(), group.getGroupName(), critical, range.getCidrIp(), direction));
                             break;
                         }
