@@ -6,6 +6,21 @@ foo
 
 This section describes the different check types you can use in your `config.yml`.
 
+### AWS IAM
+**Type**: aws_iam
+
+### AWS Security Groups
+**Type**: aws_security_groups
+
+### GitHub Organization
+**Type**: github_organization
+
+### Slack Team
+**Type**: slack_team
+
+### Website Download
+**Type**: website_download
+
 ### Website Link Target
 **Type**: website_link_target
 
