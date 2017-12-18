@@ -29,6 +29,7 @@ import horse.wtf.auditshmaudit.checks.Check;
 import horse.wtf.auditshmaudit.checks.FatalCheckException;
 import horse.wtf.auditshmaudit.checks.aws.AWSIAMCheck;
 import horse.wtf.auditshmaudit.checks.aws.EC2SecurityGroupsCheck;
+import horse.wtf.auditshmaudit.checks.dns.DNSCheck;
 import horse.wtf.auditshmaudit.checks.github.GitHubOrganizationCheck;
 import horse.wtf.auditshmaudit.checks.slack.SlackTeamCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.WebsiteDownloadCheck;
@@ -125,6 +126,9 @@ public class Main {
                     break;
                 case WebsiteLinkTargetCheck.TYPE:
                     check = new WebsiteLinkTargetCheck(checkId, configuration);
+                    break;
+                case DNSCheck.TYPE:
+                    check = new DNSCheck(checkId, configuration);
                     break;
                 default:
                     LOG.error("Unknown check type [{}]. Skipping.", checkType);
