@@ -1,5 +1,8 @@
+attic_folder: attic/
+
 checks:
   - type: aws_iam
+    id: a-descriptive-id
     enabled: false
     access_key:
     access_key_secret:
@@ -9,6 +12,7 @@ checks:
     maximum_password_age: 180
 
   - type: aws_security_groups
+    id: a-descriptive-id
     enabled: false
     access_key:
     access_key_secret:
@@ -26,15 +30,44 @@ checks:
       - tcp/465
       - tcp/587
 
-  - type: github_organization:
+  - type: github_organization
+    id: a-descriptive-id
     enabled: false
     organization_name:
-    username: 
+    username:
     access_key:
 
-  - type: slack_team:
+  - type: slack_team
+    id: a-descriptive-id
     enabled: false
     oauth_token:
 
-  - type: website_download:
+  - type: website_download
+    id: a-descriptive-id
     enabled: false
+    url:
+    css_selector:
+    css_selector_index: 0
+    expected_sha256_checksum:
+    archive_matched_files: false
+    archive_mismatched_files: true
+
+  - type: website_link_target
+    id: a-descriptive-id
+    enabled: false
+    url:
+    css_selector:
+    css_selector_index: 0
+    expected_target:
+    archive_mismatches: true
+    archive_matches: false
+
+  - type: dns
+    id: a-descriptive-id
+    enabled: false
+    dns_server: 8.8.8.8
+    dns_question:
+    dns_question_type:
+    expected_answer:
+      -
+      -
