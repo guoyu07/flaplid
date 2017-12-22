@@ -19,6 +19,7 @@ package horse.wtf.auditshmaudit.checks.supplychain;
 
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
+import horse.wtf.auditshmaudit.checks.supplychain.helpers.PhantomJS;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

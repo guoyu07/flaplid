@@ -17,31 +17,5 @@
 
 package horse.wtf.auditshmaudit.checks.supplychain;
 
-import java.io.File;
-
-public class DownloadResult {
-
-    private final File downloadedFile;
-    private final String downloadedFilePath;
-    private final byte[] downloadedBytes;
-
-
-    public DownloadResult(File downloadedFile, String downloadedFilePath, byte[] downloadedBytes) {
-        this.downloadedFile = downloadedFile;
-        this.downloadedFilePath = downloadedFilePath;
-        this.downloadedBytes = downloadedBytes;
-    }
-
-    public File getDownloadedFile() {
-        return downloadedFile;
-    }
-
-    public String getDownloadedFilePath() {
-        return downloadedFilePath;
-    }
-
-    public byte[] getDownloadedBytes() {
-        return downloadedBytes;
-    }
-
+public class WebsiteRedirectCheck {
 }

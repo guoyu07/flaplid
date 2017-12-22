@@ -15,7 +15,7 @@
  *  along with auditshmaudit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package horse.wtf.auditshmaudit.checks.supplychain;
+package horse.wtf.auditshmaudit.checks.supplychain.helpers;
 
 import horse.wtf.auditshmaudit.attic.Attic;
 import okhttp3.OkHttpClient;

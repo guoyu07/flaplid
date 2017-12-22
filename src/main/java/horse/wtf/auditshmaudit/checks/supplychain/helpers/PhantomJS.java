@@ -15,7 +15,7 @@
  *  along with auditshmaudit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package horse.wtf.auditshmaudit.checks.supplychain;
+package horse.wtf.auditshmaudit.checks.supplychain.helpers;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;

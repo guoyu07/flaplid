@@ -18,6 +18,9 @@
 package horse.wtf.auditshmaudit.checks.supplychain;
 
 import com.google.common.hash.Hashing;
+import horse.wtf.auditshmaudit.checks.supplychain.helpers.DownloadResult;
+import horse.wtf.auditshmaudit.checks.supplychain.helpers.FileDownloader;
+import horse.wtf.auditshmaudit.checks.supplychain.helpers.PhantomJS;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
