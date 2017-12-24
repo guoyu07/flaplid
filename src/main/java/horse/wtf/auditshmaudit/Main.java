@@ -51,6 +51,9 @@ public class Main {
 
     public static void main(String[] argv) {
         LOG.info("Starting up.");
+        Version version = new Version();
+        LOG.info("Version: {}.", version.getVersionString());
+
 
         final CLIArguments cliArguments = new CLIArguments();
 
