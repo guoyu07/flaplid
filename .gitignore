@@ -4,6 +4,7 @@ target/
 *.iml
 
 attic/
+src/main/resources/git.properties
 
 config.yml
 shmaudit.conf
