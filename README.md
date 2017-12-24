@@ -41,6 +41,7 @@ This configuration clicks on the 4th element under the `.downloads .btn` CSS sel
 ```
 - type: website_link_target
   id: graylogorg-download-ova
+  severity: emergency
   enabled: false
   url: http://www.graylog.org/download
   css_selector: ".downloads .btn"
