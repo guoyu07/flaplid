@@ -28,13 +28,17 @@ public class Version {
     private static final Logger LOG = LogManager.getLogger(Version.class);
 
     public String getVersionString() {
-        Properties properties = new Properties();
-        try {
-            properties.load(getClass().getClassLoader().getResourceAsStream("git.properties"));
+        Properties gitProperties = new Properties();
+        Properties buildProperties = new Properties();
 
-            return new StringBuilder(String.valueOf(properties.get("git.build.version")))
-                    .append(" built from [")
-                    .append(String.valueOf(properties.get("git.commit.id.describe-short"))).append("]")
+        try {
+            gitProperties.load(getClass().getClassLoader().getResourceAsStream("git.properties"));
+            buildProperties.load(getClass().getClassLoader().getResourceAsStream("build.properties"));
+
+            return new StringBuilder(String.valueOf(gitProperties.get("git.build.version")))
+                    .append(" built at [")
+                    .append(String.valueOf(buildProperties.get("date"))).append("] from [")
+                    .append(String.valueOf(gitProperties.get("git.commit.id.describe-short"))).append("]")
                     .toString();
         } catch (IOException e) {
             LOG.error("Could not load version information.", e);

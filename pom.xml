@@ -16,6 +16,9 @@
     </repositories>
 
     <properties>
+        <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
+        <timestamp>${maven.build.timestamp}</timestamp>
+
         <log4j.version>2.4.1</log4j.version>
         <jcommander.version>1.72</jcommander.version>
         <okhttp.version>3.9.1</okhttp.version>
@@ -142,8 +145,6 @@
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.basedir}/src/main/resources/git.properties</generateGitPropertiesFilename>
                     <format>properties</format>
-                    <dateFormatTimeZone>UTC</dateFormatTimeZone>
-                    <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
                     <failOnNoGitDirectory>true</failOnNoGitDirectory>
                     <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
                     <includeOnlyProperties>

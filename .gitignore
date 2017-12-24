@@ -6,6 +6,7 @@ dependency-reduced-pom.xml
 
 attic/
 src/main/resources/git.properties
+src/main/resources/build.properties
 
 config.yml
 shmaudit.conf
