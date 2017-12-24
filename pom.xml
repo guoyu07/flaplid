@@ -27,6 +27,7 @@
         <guava.version>22.0</guava.version>
         <github.version>1.89</github.version>
         <ghostdriver.version>2.1.0</ghostdriver.version>
+        <dnsjava.version>2.1.8</dnsjava.version>
     </properties>
 
     <dependencies>
@@ -98,7 +99,7 @@
         <dependency>
             <groupId>dnsjava</groupId>
             <artifactId>dnsjava</artifactId>
-            <version>2.1.8</version>
+            <version>${dnsjava.version}</version>
         </dependency>
     </dependencies>
 
