@@ -136,11 +136,6 @@ public class WebsiteLinkTargetCheck extends Check {
     }
 
     @Override
-    public boolean disabled() {
-        return !configuration.isCheckEnabled(this);
-    }
-
-    @Override
     public boolean configurationComplete() {
         return configuration.isCheckConfigurationComplete(this, Arrays.asList(
                 C_URL,

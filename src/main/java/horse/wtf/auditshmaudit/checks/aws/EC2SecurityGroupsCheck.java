@@ -134,11 +134,6 @@ public class EC2SecurityGroupsCheck extends Check {
     }
 
     @Override
-    public boolean disabled() {
-        return !configuration.isCheckEnabled(this);
-    }
-
-    @Override
     public boolean configurationComplete() {
         return configuration.isCheckConfigurationComplete(this, Arrays.asList(
                 C_ACCESS_KEY,

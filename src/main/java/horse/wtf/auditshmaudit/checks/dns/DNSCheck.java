@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
+import horse.wtf.auditshmaudit.checks.Severity;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -153,11 +154,6 @@ public class DNSCheck extends Check {
     @Override
     public String getCheckType() {
         return TYPE;
-    }
-
-    @Override
-    public boolean disabled() {
-        return !configuration.isCheckEnabled(this);
     }
 
     @Override

@@ -102,7 +102,7 @@ public class Configuration {
     private Map<String, Object> findCheckConfig(Check check) {
         for (Map<String, Object> checkConfig : checks) {
             if(!checkConfig.containsKey("type") || !checkConfig.containsKey("id")) {
-                throw new RuntimeException("Missing type or ID for check [" + check.getFullCheckIdentifier() + "].");
+                throw new RuntimeException("Missing type or ID for check [" + check.getCheckId() + "].");
             }
 
             String type = (String) checkConfig.get("type");
@@ -113,7 +113,7 @@ public class Configuration {
             }
         }
 
-        throw new RuntimeException("No config for check [" + check.getFullCheckIdentifier() + "] found.");
+        throw new RuntimeException("No config for check [" + check.getCheckId() + "] found.");
     }
 
     public Boolean isCheckEnabled(Check check) {

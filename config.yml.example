@@ -3,6 +3,7 @@ attic_folder: attic/
 checks:
   - type: aws_iam
     id: a-descriptive-id
+    severity: warning
     enabled: false
     access_key:
     access_key_secret:
@@ -13,6 +14,7 @@ checks:
 
   - type: aws_security_groups
     id: a-descriptive-id
+    severity: warning
     enabled: false
     access_key:
     access_key_secret:
@@ -32,6 +34,7 @@ checks:
 
   - type: github_organization
     id: a-descriptive-id
+    severity: critical
     enabled: false
     organization_name:
     username:
@@ -39,11 +42,13 @@ checks:
 
   - type: slack_team
     id: a-descriptive-id
+    severity: critical
     enabled: false
     oauth_token:
 
   - type: website_download
     id: a-descriptive-id
+    severity: emergency
     enabled: false
     url:
     css_selector:
@@ -54,6 +59,7 @@ checks:
 
   - type: website_link_target
     id: a-descriptive-id
+    severity: emergency
     enabled: false
     url:
     css_selector:
@@ -64,6 +70,7 @@ checks:
 
   - type: dns
     id: a-descriptive-id
+    severity: emergency
     enabled: false
     dns_server: 8.8.8.8
     dns_question:

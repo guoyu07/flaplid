@@ -17,6 +17,7 @@
 
 package horse.wtf.auditshmaudit.checks;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.attic.Attic;
@@ -38,7 +39,6 @@ public abstract class Check {
 
     protected abstract List<Issue> check();
     public abstract String getCheckType();
-    public abstract boolean disabled();
     public abstract boolean configurationComplete();
 
     protected Check(String id, Configuration configuration) {
@@ -64,12 +64,35 @@ public abstract class Check {
 
     }
 
+    public boolean disabled() {
+        return !configuration.isCheckEnabled(this);
+    }
+
+    public Severity getSeverity() {
+        Severity fallback = Severity.EMERGENCY;
+        String s = configuration.getString(this, "severity");
+
+        if (Strings.isNullOrEmpty(s)) {
+            LOG.error("Check [{}] has no severity defined. Use any of {} in parameter \"severity\". Setting to {}.",
+                    this.getCheckId(), Severity.values(), fallback);
+            return fallback;
+        }
+
+        try {
+            return Severity.valueOf(s.toUpperCase());
+        } catch(IllegalArgumentException e) {
+            LOG.error("Check [{}] has invalid severity defined. Use any of {} in parameter \"severity\". Setting to {}.",
+                    this.getCheckId(), Severity.values(), fallback);
+            return fallback;
+        }
+    }
+
     public String getCheckId() {
         return id;
     }
 
     public String getFullCheckIdentifier() {
-        return getCheckType() + ":" + getCheckId();
+        return getCheckType() + ":" + getCheckId() + "#" + getSeverity();
     }
 
     protected Attic getAttic() {
