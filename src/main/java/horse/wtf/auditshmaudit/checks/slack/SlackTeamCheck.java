@@ -48,7 +48,7 @@ public class SlackTeamCheck extends Check {
     }
 
     @Override
-    protected List<Issue> check() {
+    protected void check() {
         // Find user with no enabled MFA.
         try {
             Response result = this.httpClient.newCall(new Request.Builder()
@@ -102,8 +102,6 @@ public class SlackTeamCheck extends Check {
         } catch (IOException e) {
             throw new RuntimeException("Error when trying to communicate with Slack.", e);
         }
-
-        return issues();
     }
 
     @Override
@@ -112,7 +110,7 @@ public class SlackTeamCheck extends Check {
     }
 
     @Override
-    public boolean configurationComplete() {
+    public boolean isConfigurationComplete() {
         return configuration.isCheckConfigurationComplete(this, Arrays.asList(
                 C_OAUTH_TOKEN
         ));

@@ -46,7 +46,7 @@ public class GitHubOrganizationCheck extends Check {
     }
 
     @Override
-    protected List<Issue> check() {
+    protected void check() {
         try {
             GitHub client = GitHub.connect(
                     configuration.getString(this, C_USERNAME),
@@ -63,8 +63,6 @@ public class GitHubOrganizationCheck extends Check {
         } catch (IOException e) {
             throw new RuntimeException("Error when trying to communicate with GitHub API.", e);
         }
-
-        return issues();
     }
 
     @Override
@@ -73,7 +71,7 @@ public class GitHubOrganizationCheck extends Check {
     }
 
     @Override
-    public boolean configurationComplete() {
+    public boolean isConfigurationComplete() {
         return configuration.isCheckConfigurationComplete(this, Arrays.asList(
                 C_ORGANIZATION_NAME,
                 C_USERNAME,

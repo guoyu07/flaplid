@@ -37,9 +37,9 @@ public abstract class Check {
     private final Configuration configuration;
     private Attic attic;
 
-    protected abstract List<Issue> check();
+    protected abstract void check();
     public abstract String getCheckType();
-    public abstract boolean configurationComplete();
+    public abstract boolean isConfigurationComplete();
 
     protected Check(String id, Configuration configuration) {
         this.id = id;
@@ -47,17 +47,17 @@ public abstract class Check {
         this.configuration = configuration;
     }
 
-    public List<Issue> run() throws FatalCheckException {
+    public void run() throws FatalCheckException {
         this.attic = new Attic(this, configuration.atticFolder);
 
         LOG.info("Running check [{}].", getFullCheckIdentifier());
 
-        if(!disabled() && !configurationComplete()) {
+        if(!disabled() && !isConfigurationComplete()) {
             throw new FatalCheckException("Missing configuration parameters for check [" + getFullCheckIdentifier() + "] and check is not disabled.");
         }
 
         try {
-            return check();
+            check();
         } catch(Exception e){
             throw new FatalCheckException(e);
         }
@@ -92,7 +92,7 @@ public abstract class Check {
     }
 
     public String getFullCheckIdentifier() {
-        return getCheckType() + ":" + getCheckId() + "#" + getSeverity();
+        return getCheckType() + ":" + getCheckId() + "#" + getSeverity().toString().toLowerCase();
     }
 
     protected Attic getAttic() {
@@ -103,7 +103,7 @@ public abstract class Check {
         this.issuesBuilder.add(issue);
     }
 
-    protected ImmutableList<Issue> issues() {
+    public ImmutableList<Issue> getIssues() {
         return this.issuesBuilder.build();
     }
 

@@ -55,7 +55,7 @@ public class WebsiteLinkTargetCheck extends Check {
     }
 
     @Override
-    protected List<Issue> check() {
+    protected void check() {
         String cssSelector = configuration.getString(this, C_CSS_SELECTOR);
         int selectorIndex = configuration.getInt(this, C_CSS_SELECTOR_INDEX);
         String url = configuration.getString(this, C_URL);
@@ -100,7 +100,7 @@ public class WebsiteLinkTargetCheck extends Check {
                     destination, expectedTarget));
         }
 
-        return issues();
+        return;
     }
 
     public void saveScreenshotsAndSources(byte[] sourceScreenshotBytes, byte[] destinationScreenshotBytes,
@@ -136,7 +136,7 @@ public class WebsiteLinkTargetCheck extends Check {
     }
 
     @Override
-    public boolean configurationComplete() {
+    public boolean isConfigurationComplete() {
         return configuration.isCheckConfigurationComplete(this, Arrays.asList(
                 C_URL,
                 C_CSS_SELECTOR,

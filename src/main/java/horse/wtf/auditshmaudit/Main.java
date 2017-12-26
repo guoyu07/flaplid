@@ -144,7 +144,8 @@ public class Main {
             }
 
             try {
-                issues.addAll(check.run());
+                check.run();
+                issues.addAll(check.getIssues());
             }catch(FatalCheckException e) {
                 LOG.error("Fatal error in check [{}]. Aborting.", check.getFullCheckIdentifier(), e);
             }

@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
-import horse.wtf.auditshmaudit.checks.Severity;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,7 +50,7 @@ public class DNSCheck extends Check {
     }
 
     @Override
-    protected List<Issue> check() {
+    protected void check() {
         try {
             String dnsQuestion = configuration.getString(this, C_DNS_QUESTION);
             List<String> expected = configuration.getListOfStrings(this, C_EXPECTED_ANSWER);
@@ -67,17 +66,17 @@ public class DNSCheck extends Check {
             if (!lookup.getErrorString().equals("successful")) { // meeehhhhh stone age libraries
                 if(lookup.getErrorString().equals("host not found")) {
                     addIssue(new Issue(this, "Domain [{}] not found at all.", dnsQuestion));
-                    return issues();
+                    return;
                 }
 
                 if(lookup.getErrorString().equals("type not found") && (expected == null || expected.isEmpty())) {
                     LOG.debug("Empty result for lookup [{}] and empty result expected. Not raising an issue.", getFullCheckIdentifier());
-                    return issues();
+                    return;
                 }
 
                 if(lookup.getErrorString().equals("type not found") && (expected != null && !expected.isEmpty())) {
                     addIssue(new Issue(this, "Expected records but did not find any."));
-                    return issues();
+                    return;
                 }
 
                 throw new RuntimeException("DNS lookup failed with error: " + lookup.getErrorString());
@@ -118,14 +117,14 @@ public class DNSCheck extends Check {
             if((expected == null || expected.isEmpty()) && !records.isEmpty()) {
                 addIssue(new Issue(this, "Expected no DNS records but found <{}>. The records are: [{}]",
                         records.size(), Joiner.on(", ").join(records)));
-                return issues();
+                return;
             }
 
             // Check if number of records is correct.
             if (records.size() != expected.size()) {
                 addIssue(new Issue(this, "Expected <{}> DNS records but found <{}>. The records are: [{}], but I expected [{}].",
                         expected.size(), records.size(), Joiner.on(", ").join(records), Joiner.on(", ").join(expected)));
-                return issues();
+                return;
             }
 
             // Check that each expected record was found.
@@ -133,11 +132,9 @@ public class DNSCheck extends Check {
                 if (!records.contains(expectedRecord)) {
                     addIssue(new Issue(this, "Expected records [{}] but found [{}].",
                             Joiner.on(", ").join(expected), Joiner.on(", ").join(records)));
-                    return issues();
+                    return;
                 }
             }
-
-            return issues();
         } catch(Exception e) {
             throw new RuntimeException("Could not run DNS lookup.", e);
         }
@@ -157,7 +154,7 @@ public class DNSCheck extends Check {
     }
 
     @Override
-    public boolean configurationComplete() {
+    public boolean isConfigurationComplete() {
         return configuration.isCheckConfigurationComplete(this, Arrays.asList(
                 C_DNS_SERVER,
                 C_DNS_QUESTION,

@@ -54,7 +54,7 @@ public class AWSIAMCheck extends Check {
         this.configuration = configuration;
     }
 
-    protected List<Issue> check() {
+    protected void check() {
         AmazonIdentityManagement client = AmazonIdentityManagementClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(
                         new BasicAWSCredentials(
@@ -153,8 +153,6 @@ public class AWSIAMCheck extends Check {
         if (passwordPolicy.getPasswordReusePrevention() == null || passwordPolicy.getPasswordReusePrevention() <= 0) {
             addIssue(new Issue(this, "Password policy allows password reuse."));
         }
-
-        return issues();
     }
 
     @Override
@@ -163,7 +161,7 @@ public class AWSIAMCheck extends Check {
     }
 
     @Override
-    public boolean configurationComplete() {
+    public boolean isConfigurationComplete() {
         return configuration.isCheckConfigurationComplete(this, Arrays.asList(
                 C_ACCESS_KEY,
                 C_ACCESS_KEY_SECRET,

@@ -54,7 +54,7 @@ public class EC2SecurityGroupsCheck extends Check {
     }
 
     @Override
-    protected List<Issue> check() {
+    protected void check() {
         for (Regions region : Regions.values()) {
             try {
                 runForRegion(region);
@@ -67,8 +67,6 @@ public class EC2SecurityGroupsCheck extends Check {
                 }
             }
         }
-
-        return issues();
     }
 
     private void runForRegion(Regions region) {
@@ -134,7 +132,7 @@ public class EC2SecurityGroupsCheck extends Check {
     }
 
     @Override
-    public boolean configurationComplete() {
+    public boolean isConfigurationComplete() {
         return configuration.isCheckConfigurationComplete(this, Arrays.asList(
                 C_ACCESS_KEY,
                 C_ACCESS_KEY_SECRET,
