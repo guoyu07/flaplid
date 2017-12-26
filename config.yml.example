@@ -68,6 +68,15 @@ checks:
     archive_mismatches: true
     archive_matches: false
 
+  - type: website_redirect
+    id: a-descriptive-id
+    severity: emergency
+    enabled: false
+    url: http://example.com/
+    expected_final_target: https://www.example.com/
+    archive_mismatches: true
+    archive_matches: false
+
   - type: dns
     id: a-descriptive-id
     severity: emergency

@@ -34,6 +34,7 @@ import horse.wtf.auditshmaudit.checks.github.GitHubOrganizationCheck;
 import horse.wtf.auditshmaudit.checks.slack.SlackTeamCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.WebsiteDownloadCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.WebsiteLinkTargetCheck;
+import horse.wtf.auditshmaudit.checks.supplychain.WebsiteRedirectCheck;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import okhttp3.OkHttpClient;
 import org.apache.logging.log4j.LogManager;
@@ -133,6 +134,9 @@ public class Main {
                 case DNSCheck.TYPE:
                     check = new DNSCheck(checkId, configuration);
                     break;
+                case WebsiteRedirectCheck.TYPE:
+                     check = new WebsiteRedirectCheck(checkId, configuration);
+                     break;
                 default:
                     LOG.error("Unknown check type [{}]. Skipping.", checkType);
                     continue;

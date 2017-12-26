@@ -19,6 +19,7 @@ package horse.wtf.auditshmaudit.checks.supplychain;
 
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
+import horse.wtf.auditshmaudit.checks.WebDriverCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.helpers.PhantomJS;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import org.apache.logging.log4j.LogManager;
@@ -33,7 +34,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class WebsiteLinkTargetCheck extends Check {
+public class WebsiteLinkTargetCheck extends WebDriverCheck {
 
     private static final Logger LOG = LogManager.getLogger(WebsiteLinkTargetCheck.class);
 
@@ -64,7 +65,7 @@ public class WebsiteLinkTargetCheck extends Check {
         PhantomJSDriver driver = PhantomJS.buildDriver(PhantomJS.randomUserAgent());
         WebElement element = PhantomJS.getElementFromSite(driver, cssSelector, selectorIndex, url);
 
-        // Remove all links targets to avoid sending PhantomJS to window hell on a target="_blank".
+        // Remove all link targets to avoid sending PhantomJS to window hell on a target="_blank".
         driver.executeScript("var links = document.links, i, length; for (i = 0, length = links.length; i < length; i++) { links[i].target == '_blank' && links[i].removeAttribute('target'); }");
 
         byte[] sourceScreenshotBytes = driver.getScreenshotAs(OutputType.BYTES);
@@ -74,24 +75,26 @@ public class WebsiteLinkTargetCheck extends Check {
         element.click();
         LOG.debug("Clicked.");
 
-        String destination = driver.getCurrentUrl().trim();
+        String destination = driver.getCurrentUrl();
 
         byte[] destinationScreenshotBytes = driver.getScreenshotAs(OutputType.BYTES);
         byte[] destinationSourceBytes = driver.getPageSource().getBytes();
 
         if(expectedTarget.equals(destination)) {
             if(configuration.getBoolean(this, C_ARCHIVE_MATCHES)) {
-                saveScreenshotsAndSources(sourceScreenshotBytes, destinationScreenshotBytes, sourceSourceBytes, destinationSourceBytes);
+                saveScreenshotAndSource("source", sourceScreenshotBytes, sourceSourceBytes);
+                saveScreenshotAndSource("destination", destinationScreenshotBytes, destinationSourceBytes);
             } else {
-                LOG.info("Not storing screenshots and page source codes as requested. ({}:false)", C_ARCHIVE_MATCHES);
+                LOG.debug("Not storing screenshots and page source codes as requested. ({}:false)", C_ARCHIVE_MATCHES);
             }
 
-            LOG.info("We have been redirected to expected target [{}].", expectedTarget);
+            LOG.debug("We have been redirected to expected target [{}].", expectedTarget);
         } else {
             if (configuration.getBoolean(this, C_ARCHIVE_MISMATCHES)) {
-                saveScreenshotsAndSources(sourceScreenshotBytes, destinationScreenshotBytes, sourceSourceBytes, destinationSourceBytes);
+                saveScreenshotAndSource("source", sourceScreenshotBytes, sourceSourceBytes);
+                saveScreenshotAndSource("destination", destinationScreenshotBytes, destinationSourceBytes);
             } else {
-                LOG.info("Not storing screenshots and page source codes as requested. ({}:false)", C_ARCHIVE_MISMATCHES);
+                LOG.debug("Not storing screenshots and page source codes as requested. ({}:false)", C_ARCHIVE_MISMATCHES);
             }
 
             LOG.warn("We have been redirected to URL [{}] that does not match the expected target [{}].", destination, expectedTarget);
@@ -101,33 +104,6 @@ public class WebsiteLinkTargetCheck extends Check {
         }
 
         return;
-    }
-
-    public void saveScreenshotsAndSources(byte[] sourceScreenshotBytes, byte[] destinationScreenshotBytes,
-                                          byte[] sourceSourceBytes, byte[] destinationSourceBytes) {
-        DateTime timestamp = DateTime.now();
-
-        // Screenshots.
-        try {
-            File sourceScreenshot = getAttic().writeFile(sourceScreenshotBytes, "source.png", timestamp);
-            File destinationScreenshot = getAttic().writeFile(destinationScreenshotBytes, "destination.png", timestamp);
-
-            LOG.info("Screenshots of source and destination pages written to [{}], [{}].",
-                    sourceScreenshot.getCanonicalPath(), destinationScreenshot.getCanonicalPath());
-        } catch (IOException e) {
-            LOG.error("Could not write screenshot.", e);
-        }
-
-        // Source.
-        try {
-            File sourceSource = getAttic().writeFile(sourceSourceBytes, "source.html", timestamp);
-            File destinationSource = getAttic().writeFile(destinationSourceBytes, "destination.html", timestamp);
-
-            LOG.info("Page source of source and destination pages written to [{}], [{}].",
-                    sourceSource.getCanonicalPath(), destinationSource.getCanonicalPath());
-        } catch (IOException e) {
-            LOG.error("Could not write page source.", e);
-        }
     }
 
     @Override
