@@ -156,7 +156,7 @@ public class Main {
         }
 
         for (Issue issue : issues.build()) {
-            LOG.info("Check {}: {}", issue.getCheck().getFullCheckIdentifier(), issue.getMessage());
+            LOG.warn("Check {}: {}", issue.getCheck().getFullCheckIdentifier(), issue.getMessage());
         }
 
         for (Check disabledCheck : disabledChecks.build()) {
