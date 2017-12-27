@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.common.io.CharSource;
@@ -58,7 +59,6 @@ public class Main {
         Version version = new Version();
         LOG.info("Version: {}.", version.getVersionString());
 
-
         final CLIArguments cliArguments = new CLIArguments();
 
         // Parse CLI arguments.
@@ -75,6 +75,35 @@ public class Main {
 
             ObjectMapper configObjectMapper = new ObjectMapper(new YAMLFactory());
             configuration = configObjectMapper.readValue(source.read(), Configuration.class);
+
+            // Add additional configurations from included (like checks.d/) directory.
+            if (configuration.include != null && !Strings.isNullOrEmpty(configuration.include)) {
+                File includeFolder = new File(configuration.include);
+
+                if (!includeFolder.isDirectory() || !includeFolder.canRead()) {
+                    LOG.error("Include directory [{}] is not a directory or not readable. Terminating.", includeFolder.getCanonicalPath());
+                    System.exit(FAILURE);
+                }
+
+                LOG.info("Including configuration from [{}].", includeFolder.getCanonicalPath());
+
+                for (File includeFile : Files.fileTreeTraverser().breadthFirstTraversal(includeFolder)) {
+                    if(includeFile.isFile()) {
+                        if (includeFile.getName().endsWith(".yml")) {
+                            LOG.info("Reading configuration from [{}].", includeFile.getCanonicalPath());
+                            Configuration additional = configObjectMapper.readValue(
+                                    Files.asCharSource(includeFile, Charsets.UTF_8).read(),
+                                    Configuration.class
+                            );
+
+                            // Add all additional checks to the root configuration.
+                            configuration.checks.addAll(additional.checks);
+                        } else {
+                            LOG.debug("Filename does not end with .yml and is ignored: [{}]", includeFile.getCanonicalPath());
+                        }
+                    }
+                }
+            }
         } catch (Exception e) {
             LOG.error("Could not read configuration file.", e);
             System.exit(FAILURE);
@@ -84,7 +113,6 @@ public class Main {
             LOG.error("Configuration is incomplete. Please refer to the example configuration file.");
             System.exit(FAILURE);
         }
-
 
         ObjectMapper om = new ObjectMapper();
         om.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);

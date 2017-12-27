@@ -24,6 +24,7 @@ import horse.wtf.auditshmaudit.checks.Check;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,10 @@ public class Configuration {
 
     @JsonProperty("attic_folder")
     public String atticFolder;
+
+    @JsonProperty("include")
+    @Nullable
+    public String include;
 
     @JsonProperty
     public List<Map<String, Object>> checks;
