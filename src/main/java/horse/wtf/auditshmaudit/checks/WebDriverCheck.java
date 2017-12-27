@@ -34,8 +34,10 @@ public abstract class WebDriverCheck extends Check {
     }
 
     public void saveScreenshotAndSource(String name, byte[] screenshotBytes, byte[] sourceBytes) {
-        DateTime timestamp = DateTime.now();
+        saveScreenshotAndSource(name, screenshotBytes, sourceBytes, DateTime.now());
+    }
 
+    public void saveScreenshotAndSource(String name, byte[] screenshotBytes, byte[] sourceBytes, DateTime timestamp) {
         // Screenshot.
         try {
             File screenshot = getAttic().writeFile(screenshotBytes, name + ".png", timestamp);

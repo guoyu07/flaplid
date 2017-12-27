@@ -18,6 +18,7 @@
 package horse.wtf.auditshmaudit.checks.supplychain;
 
 import com.google.common.hash.Hashing;
+import horse.wtf.auditshmaudit.checks.WebDriverCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.helpers.DownloadResult;
 import horse.wtf.auditshmaudit.checks.supplychain.helpers.FileDownloader;
 import horse.wtf.auditshmaudit.checks.supplychain.helpers.PhantomJS;
@@ -28,12 +29,13 @@ import okhttp3.OkHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
+import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
 import java.util.Arrays;
 
-public class WebsiteDownloadCheck extends Check {
+public class WebsiteDownloadCheck extends WebDriverCheck {
 
     private static final Logger LOG = LogManager.getLogger(WebsiteDownloadCheck.class);
 
@@ -65,13 +67,18 @@ public class WebsiteDownloadCheck extends Check {
         PhantomJSDriver driver = PhantomJS.buildDriver(PhantomJS.randomUserAgent());
         WebElement element = PhantomJS.getElementFromSite(driver, cssSelector, selectorIndex, url);
 
+        byte[] screenshotBytes = driver.getScreenshotAs(OutputType.BYTES);
+        byte[] sourceBytes = driver.getPageSource().getBytes();
+
         String downloadLink = element.getAttribute("href");
         if(downloadLink == null) {
             throw new RuntimeException("Element #" + selectorIndex + " of [" + cssSelector + "] on [" + url + "] does not have a href attribute. Cannot follow for download.");
         }
 
+        DateTime timestamp = DateTime.now();
+
         // Follow link and download file to attic.
-        DownloadResult downloadResult = FileDownloader.downloadFileToAttic(this.getAttic(), this.httpClient, downloadLink, DateTime.now());
+        DownloadResult downloadResult = FileDownloader.downloadFileToAttic(this.getAttic(), this.httpClient, downloadLink, timestamp);
 
         // Calculate and compare checksum.
         String expectedChecksum = configuration.getString(C_EXPECTED_SHA256_CHECKSUM);
@@ -85,6 +92,8 @@ public class WebsiteDownloadCheck extends Check {
             if(configuration.getBoolean(C_ARCHIVE_MATCHED_FILES)) {
                LOG.info("Configuration requests to keep all files. ({}:true) Not deleting downloaded file from attic. File is at [{}].",
                        C_ARCHIVE_MATCHED_FILES, downloadResult.getDownloadedFilePath());
+
+                saveScreenshotAndSource("source", screenshotBytes, sourceBytes, timestamp);
             } else {
                 LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_MATCHED_FILES);
                 if(!downloadResult.getDownloadedFile().delete()) {
@@ -98,6 +107,8 @@ public class WebsiteDownloadCheck extends Check {
             if(configuration.getBoolean(C_ARCHIVE_MISMATCHED_FILES)) {
                 LOG.info("Configuration requests to keep mismatched files. ({}:true) Not deleting downloaded file from attic. File is at [{}]",
                         C_ARCHIVE_MISMATCHED_FILES, downloadResult.getDownloadedFilePath());
+
+                saveScreenshotAndSource("source", screenshotBytes, sourceBytes, timestamp);
             } else {
                 LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_MISMATCHED_FILES);
                 if(!downloadResult.getDownloadedFile().delete()) {
