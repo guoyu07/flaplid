@@ -46,4 +46,16 @@ public class Configuration {
         return checks != null && !Strings.isNullOrEmpty(atticFolder);
     }
 
+    public void setAtticFolder(String atticFolder) {
+        this.atticFolder = atticFolder;
+    }
+
+    public void setInclude(@Nullable String include) {
+        this.include = include;
+    }
+
+    public void setChecks(List<Map<String, Object>> checks) {
+        this.checks = checks;
+    }
+
 }

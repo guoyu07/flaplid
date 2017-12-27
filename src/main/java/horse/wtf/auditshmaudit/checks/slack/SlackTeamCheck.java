@@ -25,6 +25,7 @@ import horse.wtf.auditshmaudit.checks.Check;
 import horse.wtf.auditshmaudit.checks.slack.models.SlackMember;
 import horse.wtf.auditshmaudit.checks.slack.models.SlackUsersList;
 import okhttp3.*;
+import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,11 +40,23 @@ public class SlackTeamCheck extends Check {
     private final OkHttpClient httpClient;
     private final ObjectMapper om;
 
+    private HttpUrl url;
+
     public SlackTeamCheck(String checkId, CheckConfiguration configuration, OkHttpClient httpClient, ObjectMapper om) {
         super(checkId, configuration);
         this.configuration = configuration;
         this.httpClient = httpClient;
         this.om = om;
+
+        this.url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("slack.com")
+                .encodedPath("/api/users.list")
+                .addQueryParameter("token", configuration.getString(C_OAUTH_TOKEN))
+                .addQueryParameter("include_locale", "false")
+                .addQueryParameter("limit", "0")
+                .addQueryParameter("presence", "false")
+                .build();
     }
 
     @Override
@@ -51,16 +64,7 @@ public class SlackTeamCheck extends Check {
         // Find user with no enabled MFA.
         try {
             Response result = this.httpClient.newCall(new Request.Builder()
-                    .url(new HttpUrl.Builder()
-                            .scheme("https")
-                            .host("slack.com")
-                            .encodedPath("/api/users.list")
-                            .addQueryParameter("token", configuration.getString(C_OAUTH_TOKEN))
-                            .addQueryParameter("include_locale", "false")
-                            .addQueryParameter("limit", "0")
-                            .addQueryParameter("presence", "false")
-                            .build()
-                    )
+                    .url(url)
                     .build()
             ).execute();
 
@@ -114,5 +118,16 @@ public class SlackTeamCheck extends Check {
                 C_OAUTH_TOKEN
         ));
     }
+
+    /**
+     * For testing.
+     *
+     * @param url The Slack API URL
+     */
+    public void setUrl(HttpUrl url) {
+        this.url = url;
+    }
+
+
 
 }
