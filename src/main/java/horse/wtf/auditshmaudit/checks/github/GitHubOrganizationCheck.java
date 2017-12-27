@@ -17,7 +17,7 @@
 
 package horse.wtf.auditshmaudit.checks.github;
 
-import horse.wtf.auditshmaudit.configuration.Configuration;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
 import org.kohsuke.github.GHOrganization;
@@ -27,7 +27,6 @@ import org.kohsuke.github.PagedIterable;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 public class GitHubOrganizationCheck extends Check {
 
@@ -37,9 +36,9 @@ public class GitHubOrganizationCheck extends Check {
     private static final String C_USERNAME = "username";
     private static final String C_ACCESS_KEY = "access_key";
 
-    private final Configuration configuration;
+    private final CheckConfiguration configuration;
 
-    public GitHubOrganizationCheck(String checkId, Configuration configuration) {
+    public GitHubOrganizationCheck(String checkId, CheckConfiguration configuration) {
         super(checkId, configuration);
 
         this.configuration = configuration;
@@ -49,11 +48,11 @@ public class GitHubOrganizationCheck extends Check {
     protected void check() {
         try {
             GitHub client = GitHub.connect(
-                    configuration.getString(this, C_USERNAME),
-                    configuration.getString(this, C_ACCESS_KEY)
+                    configuration.getString(C_USERNAME),
+                    configuration.getString(C_ACCESS_KEY)
             );
             GHOrganization organization = client.getOrganization(
-                    configuration.getString(this, C_ORGANIZATION_NAME)
+                    configuration.getString(C_ORGANIZATION_NAME)
             );
 
             PagedIterable<GHUser> usersWithoutMFA = organization.listMembersWithFilter("2fa_disabled");
@@ -72,7 +71,7 @@ public class GitHubOrganizationCheck extends Check {
 
     @Override
     public boolean isConfigurationComplete() {
-        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+        return configuration.isComplete(Arrays.asList(
                 C_ORGANIZATION_NAME,
                 C_USERNAME,
                 C_ACCESS_KEY

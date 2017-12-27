@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
-import horse.wtf.auditshmaudit.configuration.Configuration;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xbill.DNS.*;
@@ -41,9 +41,9 @@ public class DNSCheck extends Check {
 
     public static final String TYPE = "dns";
 
-    private final Configuration configuration;
+    private final CheckConfiguration configuration;
 
-    public DNSCheck(String id, Configuration configuration) {
+    public DNSCheck(String id, CheckConfiguration configuration) {
         super(id, configuration);
 
         this.configuration = configuration;
@@ -52,14 +52,14 @@ public class DNSCheck extends Check {
     @Override
     protected void check() {
         try {
-            String dnsQuestion = configuration.getString(this, C_DNS_QUESTION);
-            List<String> expected = configuration.getListOfStrings(this, C_EXPECTED_ANSWER);
+            String dnsQuestion = configuration.getString(C_DNS_QUESTION);
+            List<String> expected = configuration.getListOfStrings(C_EXPECTED_ANSWER);
 
             Lookup lookup = new Lookup(
                     dnsQuestion,
-                    Type.value(configuration.getString(this, C_DNS_QUESTION_TYPE).toUpperCase())
+                    Type.value(configuration.getString(C_DNS_QUESTION_TYPE).toUpperCase())
             );
-            lookup.setResolver(new SimpleResolver(configuration.getString(this, C_DNS_SERVER)));
+            lookup.setResolver(new SimpleResolver(configuration.getString(C_DNS_SERVER)));
 
             Record[] lookupResult = lookup.run();
 
@@ -155,7 +155,7 @@ public class DNSCheck extends Check {
 
     @Override
     public boolean isConfigurationComplete() {
-        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+        return configuration.isComplete(Arrays.asList(
                 C_DNS_SERVER,
                 C_DNS_QUESTION,
                 C_DNS_QUESTION_TYPE

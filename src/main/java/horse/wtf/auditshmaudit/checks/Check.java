@@ -17,15 +17,12 @@
 
 package horse.wtf.auditshmaudit.checks;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.attic.Attic;
-import horse.wtf.auditshmaudit.configuration.Configuration;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.List;
 
 public abstract class Check {
 
@@ -34,21 +31,21 @@ public abstract class Check {
     private final ImmutableList.Builder<Issue> issuesBuilder;
 
     private final String id;
-    private final Configuration configuration;
+    private final CheckConfiguration configuration;
     private Attic attic;
 
     protected abstract void check();
     public abstract String getCheckType();
     public abstract boolean isConfigurationComplete();
 
-    protected Check(String id, Configuration configuration) {
+    protected Check(String id, CheckConfiguration configuration) {
         this.id = id;
         this.issuesBuilder = new ImmutableList.Builder<>();
         this.configuration = configuration;
     }
 
     public void run() throws FatalCheckException {
-        this.attic = new Attic(this, configuration.atticFolder);
+        this.attic = new Attic(this, configuration.getAtticBaseFolderPath());
 
         LOG.info("Running check [{}].", getFullCheckIdentifier());
 
@@ -65,26 +62,7 @@ public abstract class Check {
     }
 
     public boolean disabled() {
-        return !configuration.isCheckEnabled(this);
-    }
-
-    public Severity getSeverity() {
-        Severity fallback = Severity.EMERGENCY;
-        String s = configuration.getString(this, "severity");
-
-        if (Strings.isNullOrEmpty(s)) {
-            LOG.error("Check [{}] has no severity defined. Use any of {} in parameter \"severity\". Setting to {}.",
-                    this.getCheckId(), Severity.values(), fallback);
-            return fallback;
-        }
-
-        try {
-            return Severity.valueOf(s.toUpperCase());
-        } catch(IllegalArgumentException e) {
-            LOG.error("Check [{}] has invalid severity defined. Use any of {} in parameter \"severity\". Setting to {}.",
-                    this.getCheckId(), Severity.values(), fallback);
-            return fallback;
-        }
+        return !configuration.isEnabled();
     }
 
     public String getCheckId() {
@@ -92,7 +70,7 @@ public abstract class Check {
     }
 
     public String getFullCheckIdentifier() {
-        return getCheckType() + ":" + getCheckId() + "#" + getSeverity().toString().toLowerCase();
+        return getCheckType() + ":" + getCheckId() + "#" + configuration.getSeverity().toString().toLowerCase();
     }
 
     protected Attic getAttic() {

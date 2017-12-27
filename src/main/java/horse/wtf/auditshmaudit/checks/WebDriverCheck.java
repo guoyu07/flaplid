@@ -17,7 +17,7 @@
 
 package horse.wtf.auditshmaudit.checks;
 
-import horse.wtf.auditshmaudit.configuration.Configuration;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -29,7 +29,7 @@ public abstract class WebDriverCheck extends Check {
 
     private static final Logger LOG = LogManager.getLogger(WebDriverCheck.class);
 
-    protected WebDriverCheck(String id, Configuration configuration) {
+    protected WebDriverCheck(String id, CheckConfiguration configuration) {
         super(id, configuration);
     }
 

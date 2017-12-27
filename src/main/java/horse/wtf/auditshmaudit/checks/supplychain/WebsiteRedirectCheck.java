@@ -20,7 +20,7 @@ package horse.wtf.auditshmaudit.checks.supplychain;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.WebDriverCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.helpers.PhantomJS;
-import horse.wtf.auditshmaudit.configuration.Configuration;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.OutputType;
@@ -39,9 +39,9 @@ public class WebsiteRedirectCheck extends WebDriverCheck {
     private static final String C_ARCHIVE_MISMATCHES = "archive_mismatches";
     private static final String C_ARCHIVE_MATCHES = "archive_matches";
 
-    private final Configuration configuration;
+    private final CheckConfiguration configuration;
 
-    public WebsiteRedirectCheck(String id, Configuration configuration) {
+    public WebsiteRedirectCheck(String id, CheckConfiguration configuration) {
         super(id, configuration);
 
         this.configuration = configuration;
@@ -49,8 +49,8 @@ public class WebsiteRedirectCheck extends WebDriverCheck {
 
     @Override
     protected void check() {
-        String url = configuration.getString(this, C_URL);
-        String expectedTarget = configuration.getString(this, C_EXPECTED_FINAL_TARGET);
+        String url = configuration.getString(C_URL);
+        String expectedTarget = configuration.getString(C_EXPECTED_FINAL_TARGET);
 
         PhantomJSDriver driver = PhantomJS.buildDriver(PhantomJS.randomUserAgent());
         driver.get(url);
@@ -61,7 +61,7 @@ public class WebsiteRedirectCheck extends WebDriverCheck {
         byte[] sourceBytes = driver.getPageSource().getBytes();
 
         if(expectedTarget.equals(destination)) {
-            if(configuration.getBoolean(this, C_ARCHIVE_MATCHES)) {
+            if(configuration.getBoolean(C_ARCHIVE_MATCHES)) {
                 saveScreenshotAndSource("destination", screenshotBytes, sourceBytes);
             } else {
                 LOG.debug("Not storing screenshot and page source code as requested. ({}:false)", C_ARCHIVE_MATCHES);
@@ -69,7 +69,7 @@ public class WebsiteRedirectCheck extends WebDriverCheck {
 
             LOG.debug("We have been redirected to expected target [{}].", expectedTarget);
         } else {
-            if (configuration.getBoolean(this, C_ARCHIVE_MISMATCHES)) {
+            if (configuration.getBoolean(C_ARCHIVE_MISMATCHES)) {
                 saveScreenshotAndSource("destination", screenshotBytes, sourceBytes);
             } else {
                 LOG.debug("Not storing screenshot and page source code as requested. ({}:false)", C_ARCHIVE_MISMATCHES);
@@ -89,7 +89,7 @@ public class WebsiteRedirectCheck extends WebDriverCheck {
 
     @Override
     public boolean isConfigurationComplete() {
-        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+        return configuration.isComplete(Arrays.asList(
                 C_URL,
                 C_EXPECTED_FINAL_TARGET,
                 C_ARCHIVE_MATCHES,

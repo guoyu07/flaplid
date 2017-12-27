@@ -35,6 +35,7 @@ import horse.wtf.auditshmaudit.checks.slack.SlackTeamCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.WebsiteDownloadCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.WebsiteLinkTargetCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.WebsiteRedirectCheck;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import horse.wtf.auditshmaudit.configuration.Configuration;
 import okhttp3.OkHttpClient;
 import org.apache.logging.log4j.LogManager;
@@ -97,48 +98,42 @@ public class Main {
         ImmutableList.Builder<Issue> issues = new ImmutableList.Builder<>();
 
         // Load all checks.
-        for (Map<String, Object> checkConfig : configuration.checks) {
-            if(!checkConfig.containsKey("type")) {
-                LOG.error("Missing attribute [type] on a check configuration. Skipping.");
+        for (Map<String, Object> configMap : configuration.checks) {
+            CheckConfiguration checkConfiguration = new CheckConfiguration(configMap, configuration);
+
+            if(!checkConfiguration.standardParametersAreComplete()) {
+                LOG.error("Missing attribute on check configuration. Skipping.");
                 continue;
             }
-
-            if(!checkConfig.containsKey("id")) {
-                LOG.error("Missing attribute [id] on a check configuration. Skipping.");
-                continue;
-            }
-
-            String checkType = (String) checkConfig.get("type");
-            String checkId = (String) checkConfig.get("id");
 
             Check check;
-            switch (checkType) {
+            switch (checkConfiguration.getType()) {
                 case WebsiteDownloadCheck.TYPE:
-                    check = new WebsiteDownloadCheck(checkId, configuration, httpClient);
+                    check = new WebsiteDownloadCheck(checkConfiguration.getId(), checkConfiguration, httpClient);
                     break;
                 case SlackTeamCheck.TYPE:
-                    check = new SlackTeamCheck(checkId, configuration, httpClient, om);
+                    check = new SlackTeamCheck(checkConfiguration.getId(), checkConfiguration, httpClient, om);
                     break;
                 case GitHubOrganizationCheck.TYPE:
-                    check = new GitHubOrganizationCheck(checkId, configuration);
+                    check = new GitHubOrganizationCheck(checkConfiguration.getId(), checkConfiguration);
                     break;
                 case EC2SecurityGroupsCheck.TYPE:
-                    check = new EC2SecurityGroupsCheck(checkId, configuration);
+                    check = new EC2SecurityGroupsCheck(checkConfiguration.getId(), checkConfiguration);
                     break;
                 case AWSIAMCheck.TYPE:
-                    check = new AWSIAMCheck(checkId, configuration);
+                    check = new AWSIAMCheck(checkConfiguration.getId(), checkConfiguration);
                     break;
                 case WebsiteLinkTargetCheck.TYPE:
-                    check = new WebsiteLinkTargetCheck(checkId, configuration);
+                    check = new WebsiteLinkTargetCheck(checkConfiguration.getId(), checkConfiguration);
                     break;
                 case DNSCheck.TYPE:
-                    check = new DNSCheck(checkId, configuration);
+                    check = new DNSCheck(checkConfiguration.getId(), checkConfiguration);
                     break;
                 case WebsiteRedirectCheck.TYPE:
-                     check = new WebsiteRedirectCheck(checkId, configuration);
+                     check = new WebsiteRedirectCheck(checkConfiguration.getId(), checkConfiguration);
                      break;
                 default:
-                    LOG.error("Unknown check type [{}]. Skipping.", checkType);
+                    LOG.error("Unknown check type [{}]. Skipping.", checkConfiguration.getType());
                     continue;
             }
 
@@ -162,8 +157,6 @@ public class Main {
         for (Check disabledCheck : disabledChecks.build()) {
             LOG.warn("Check [{}] is disabled and was not executed.", disabledCheck.getFullCheckIdentifier());
         }
-
-        // TODO: Run OpsGenie heartbeat if in --prod mode. (optional)
 
     }
 

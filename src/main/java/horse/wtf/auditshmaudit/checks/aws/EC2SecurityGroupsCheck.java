@@ -23,7 +23,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.*;
-import horse.wtf.auditshmaudit.configuration.Configuration;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
 import org.apache.logging.log4j.LogManager;
@@ -46,9 +46,9 @@ public class EC2SecurityGroupsCheck extends Check {
     private static final String CIDR_ALL_IPV4 = "0.0.0.0/0";
     private static final String CIDR_ALL_IPV6 = "::/0";
 
-    private final Configuration configuration;
+    private final CheckConfiguration configuration;
 
-    public EC2SecurityGroupsCheck(String checkId, Configuration configuration) {
+    public EC2SecurityGroupsCheck(String checkId, CheckConfiguration configuration) {
         super(checkId, configuration);
         this.configuration = configuration;
     }
@@ -74,8 +74,8 @@ public class EC2SecurityGroupsCheck extends Check {
         AmazonEC2 client = AmazonEC2ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(
                         new BasicAWSCredentials(
-                                configuration.getString(this, C_ACCESS_KEY),
-                                configuration.getString(this, C_ACCESS_KEY_SECRET))
+                                configuration.getString(C_ACCESS_KEY),
+                                configuration.getString(C_ACCESS_KEY_SECRET))
                 ))
                 .withRegion(region)
                 .build();
@@ -86,14 +86,14 @@ public class EC2SecurityGroupsCheck extends Check {
         }
 
         for (SecurityGroup group : result.getSecurityGroups()) {
-            checkRules(group, group.getIpPermissions(), configuration.getListOfPortsAndProtocols(this, C_CRITICAL_PORTS_INBOUND), "inbound", region);
-            checkRules(group, group.getIpPermissionsEgress(), configuration.getListOfPortsAndProtocols(this, C_CRITICAL_PORTS_OUTBOUND), "outbound", region);
+            checkRules(group, group.getIpPermissions(), configuration.getListOfPortsAndProtocols(C_CRITICAL_PORTS_INBOUND), "inbound", region);
+            checkRules(group, group.getIpPermissionsEgress(), configuration.getListOfPortsAndProtocols(C_CRITICAL_PORTS_OUTBOUND), "outbound", region);
         }
     }
 
-    private void checkRules(SecurityGroup group, List<IpPermission> permissions, List<Configuration.PortAndProtocol> criticalPorts, String direction, Regions region) {
+    private void checkRules(SecurityGroup group, List<IpPermission> permissions, List<CheckConfiguration.PortAndProtocol> criticalPorts, String direction, Regions region) {
         for (IpPermission permission : permissions) {
-            for (Configuration.PortAndProtocol critical : criticalPorts) {
+            for (CheckConfiguration.PortAndProtocol critical : criticalPorts) {
                 if ((critical.getProtocol().equals(permission.getIpProtocol()) || permission.getIpProtocol() == null)
                         && ((critical.getPort() >= permission.getFromPort() && critical.getPort() <= permission.getToPort())) || isAllRange(permission)) {
                     // This rule is in range of a critical port.
@@ -133,7 +133,7 @@ public class EC2SecurityGroupsCheck extends Check {
 
     @Override
     public boolean isConfigurationComplete() {
-        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+        return configuration.isComplete(Arrays.asList(
                 C_ACCESS_KEY,
                 C_ACCESS_KEY_SECRET,
                 C_CRITICAL_PORTS_INBOUND,

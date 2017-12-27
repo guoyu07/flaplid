@@ -18,21 +18,16 @@
 package horse.wtf.auditshmaudit.checks.supplychain;
 
 import horse.wtf.auditshmaudit.Issue;
-import horse.wtf.auditshmaudit.checks.Check;
 import horse.wtf.auditshmaudit.checks.WebDriverCheck;
 import horse.wtf.auditshmaudit.checks.supplychain.helpers.PhantomJS;
-import horse.wtf.auditshmaudit.configuration.Configuration;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joda.time.DateTime;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 public class WebsiteLinkTargetCheck extends WebDriverCheck {
 
@@ -47,9 +42,9 @@ public class WebsiteLinkTargetCheck extends WebDriverCheck {
     private static final String C_ARCHIVE_MISMATCHES = "archive_mismatches";
     private static final String C_ARCHIVE_MATCHES = "archive_matches";
 
-    private final Configuration configuration;
+    private final CheckConfiguration configuration;
 
-    public WebsiteLinkTargetCheck(String id, Configuration configuration) {
+    public WebsiteLinkTargetCheck(String id, CheckConfiguration configuration) {
         super(id, configuration);
 
         this.configuration = configuration;
@@ -57,10 +52,10 @@ public class WebsiteLinkTargetCheck extends WebDriverCheck {
 
     @Override
     protected void check() {
-        String cssSelector = configuration.getString(this, C_CSS_SELECTOR);
-        int selectorIndex = configuration.getInt(this, C_CSS_SELECTOR_INDEX);
-        String url = configuration.getString(this, C_URL);
-        String expectedTarget = configuration.getString(this, C_EXPECTED_TARGET);
+        String cssSelector = configuration.getString(C_CSS_SELECTOR);
+        int selectorIndex = configuration.getInt(C_CSS_SELECTOR_INDEX);
+        String url = configuration.getString(C_URL);
+        String expectedTarget = configuration.getString(C_EXPECTED_TARGET);
 
         PhantomJSDriver driver = PhantomJS.buildDriver(PhantomJS.randomUserAgent());
         WebElement element = PhantomJS.getElementFromSite(driver, cssSelector, selectorIndex, url);
@@ -81,7 +76,7 @@ public class WebsiteLinkTargetCheck extends WebDriverCheck {
         byte[] destinationSourceBytes = driver.getPageSource().getBytes();
 
         if(expectedTarget.equals(destination)) {
-            if(configuration.getBoolean(this, C_ARCHIVE_MATCHES)) {
+            if(configuration.getBoolean(C_ARCHIVE_MATCHES)) {
                 saveScreenshotAndSource("source", sourceScreenshotBytes, sourceSourceBytes);
                 saveScreenshotAndSource("destination", destinationScreenshotBytes, destinationSourceBytes);
             } else {
@@ -90,7 +85,7 @@ public class WebsiteLinkTargetCheck extends WebDriverCheck {
 
             LOG.debug("We have been redirected to expected target [{}].", expectedTarget);
         } else {
-            if (configuration.getBoolean(this, C_ARCHIVE_MISMATCHES)) {
+            if (configuration.getBoolean(C_ARCHIVE_MISMATCHES)) {
                 saveScreenshotAndSource("source", sourceScreenshotBytes, sourceSourceBytes);
                 saveScreenshotAndSource("destination", destinationScreenshotBytes, destinationSourceBytes);
             } else {
@@ -113,7 +108,7 @@ public class WebsiteLinkTargetCheck extends WebDriverCheck {
 
     @Override
     public boolean isConfigurationComplete() {
-        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+        return configuration.isComplete(Arrays.asList(
                 C_URL,
                 C_CSS_SELECTOR,
                 C_CSS_SELECTOR_INDEX,

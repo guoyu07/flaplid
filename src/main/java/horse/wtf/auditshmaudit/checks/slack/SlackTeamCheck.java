@@ -19,7 +19,7 @@ package horse.wtf.auditshmaudit.checks.slack;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import horse.wtf.auditshmaudit.configuration.Configuration;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
 import horse.wtf.auditshmaudit.checks.slack.models.SlackMember;
@@ -28,7 +28,6 @@ import okhttp3.*;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 public class SlackTeamCheck extends Check {
 
@@ -36,11 +35,11 @@ public class SlackTeamCheck extends Check {
 
     private final String C_OAUTH_TOKEN = "oauth_token";
 
-    private final Configuration configuration;
+    private final CheckConfiguration configuration;
     private final OkHttpClient httpClient;
     private final ObjectMapper om;
 
-    public SlackTeamCheck(String checkId, Configuration configuration, OkHttpClient httpClient, ObjectMapper om) {
+    public SlackTeamCheck(String checkId, CheckConfiguration configuration, OkHttpClient httpClient, ObjectMapper om) {
         super(checkId, configuration);
         this.configuration = configuration;
         this.httpClient = httpClient;
@@ -56,7 +55,7 @@ public class SlackTeamCheck extends Check {
                             .scheme("https")
                             .host("slack.com")
                             .encodedPath("/api/users.list")
-                            .addQueryParameter("token", configuration.getString(this, C_OAUTH_TOKEN))
+                            .addQueryParameter("token", configuration.getString(C_OAUTH_TOKEN))
                             .addQueryParameter("include_locale", "false")
                             .addQueryParameter("limit", "0")
                             .addQueryParameter("presence", "false")
@@ -111,7 +110,7 @@ public class SlackTeamCheck extends Check {
 
     @Override
     public boolean isConfigurationComplete() {
-        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+        return configuration.isComplete(Arrays.asList(
                 C_OAUTH_TOKEN
         ));
     }

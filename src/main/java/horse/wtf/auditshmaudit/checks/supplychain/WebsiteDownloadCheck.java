@@ -21,7 +21,7 @@ import com.google.common.hash.Hashing;
 import horse.wtf.auditshmaudit.checks.supplychain.helpers.DownloadResult;
 import horse.wtf.auditshmaudit.checks.supplychain.helpers.FileDownloader;
 import horse.wtf.auditshmaudit.checks.supplychain.helpers.PhantomJS;
-import horse.wtf.auditshmaudit.configuration.Configuration;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.Check;
 import okhttp3.OkHttpClient;
@@ -32,7 +32,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class WebsiteDownloadCheck extends Check {
 
@@ -47,10 +46,10 @@ public class WebsiteDownloadCheck extends Check {
     private static final String C_ARCHIVE_MATCHED_FILES = "archive_matched_files";
     private static final String C_ARCHIVE_MISMATCHED_FILES = "archive_mismatched_files";
 
-    private final Configuration configuration;
+    private final CheckConfiguration configuration;
     private final OkHttpClient httpClient;
 
-    public WebsiteDownloadCheck(String id, Configuration configuration, OkHttpClient httpClient) {
+    public WebsiteDownloadCheck(String id, CheckConfiguration configuration, OkHttpClient httpClient) {
         super(id, configuration);
 
         this.configuration = configuration;
@@ -59,9 +58,9 @@ public class WebsiteDownloadCheck extends Check {
 
     @Override
     protected void check() {
-        String cssSelector = configuration.getString(this, C_CSS_SELECTOR);
-        int selectorIndex = configuration.getInt(this, C_CSS_SELECTOR_INDEX);
-        String url = configuration.getString(this, C_URL);
+        String cssSelector = configuration.getString(C_CSS_SELECTOR);
+        int selectorIndex = configuration.getInt(C_CSS_SELECTOR_INDEX);
+        String url = configuration.getString(C_URL);
 
         PhantomJSDriver driver = PhantomJS.buildDriver(PhantomJS.randomUserAgent());
         WebElement element = PhantomJS.getElementFromSite(driver, cssSelector, selectorIndex, url);
@@ -75,7 +74,7 @@ public class WebsiteDownloadCheck extends Check {
         DownloadResult downloadResult = FileDownloader.downloadFileToAttic(this.getAttic(), this.httpClient, downloadLink, DateTime.now());
 
         // Calculate and compare checksum.
-        String expectedChecksum = configuration.getString(this, C_EXPECTED_SHA256_CHECKSUM);
+        String expectedChecksum = configuration.getString(C_EXPECTED_SHA256_CHECKSUM);
         LOG.info("Completed download. Comparing checksums. Expecting checksum [{}]", expectedChecksum);
 
         String checksum = Hashing.sha256().hashBytes(downloadResult.getDownloadedBytes()).toString();
@@ -83,7 +82,7 @@ public class WebsiteDownloadCheck extends Check {
             // Checksums match. Delete the file if no archival was configured.
             LOG.info("Checksums match. ({}=={})", expectedChecksum, checksum);
 
-            if(configuration.getBoolean(this, C_ARCHIVE_MATCHED_FILES)) {
+            if(configuration.getBoolean(C_ARCHIVE_MATCHED_FILES)) {
                LOG.info("Configuration requests to keep all files. ({}:true) Not deleting downloaded file from attic. File is at [{}].",
                        C_ARCHIVE_MATCHED_FILES, downloadResult.getDownloadedFilePath());
             } else {
@@ -96,7 +95,7 @@ public class WebsiteDownloadCheck extends Check {
             // Checksums do not match!
             LOG.warn("Checksums do not match! ({}!={})", expectedChecksum, checksum);
 
-            if(configuration.getBoolean(this, C_ARCHIVE_MISMATCHED_FILES)) {
+            if(configuration.getBoolean(C_ARCHIVE_MISMATCHED_FILES)) {
                 LOG.info("Configuration requests to keep mismatched files. ({}:true) Not deleting downloaded file from attic. File is at [{}]",
                         C_ARCHIVE_MISMATCHED_FILES, downloadResult.getDownloadedFilePath());
             } else {
@@ -121,7 +120,7 @@ public class WebsiteDownloadCheck extends Check {
 
     @Override
     public boolean isConfigurationComplete() {
-        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+        return configuration.isComplete(Arrays.asList(
                 C_URL,
                 C_CSS_SELECTOR,
                 C_EXPECTED_SHA256_CHECKSUM,

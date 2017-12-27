@@ -25,7 +25,7 @@ import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientB
 import com.amazonaws.services.identitymanagement.model.*;
 import com.google.common.collect.Lists;
 import horse.wtf.auditshmaudit.checks.Check;
-import horse.wtf.auditshmaudit.configuration.Configuration;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
 import horse.wtf.auditshmaudit.Issue;
 import horse.wtf.auditshmaudit.checks.aws.convenience.AWSAccessKey;
 import horse.wtf.auditshmaudit.checks.aws.convenience.AWSUser;
@@ -46,9 +46,9 @@ public class AWSIAMCheck extends Check {
     private static final String C_MIN_PASSWORD_LENGTH = "minimum_password_length";
     private static final String C_MAX_PASSWORD_AGE = "maximum_password_age";
 
-    private final Configuration configuration;
+    private final CheckConfiguration configuration;
 
-    public AWSIAMCheck(String checkId, Configuration configuration) {
+    public AWSIAMCheck(String checkId, CheckConfiguration configuration) {
         super(checkId, configuration);
 
         this.configuration = configuration;
@@ -58,8 +58,8 @@ public class AWSIAMCheck extends Check {
         AmazonIdentityManagement client = AmazonIdentityManagementClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(
                         new BasicAWSCredentials(
-                                configuration.getString(this, C_ACCESS_KEY),
-                                configuration.getString(this, C_ACCESS_KEY_SECRET))
+                                configuration.getString(C_ACCESS_KEY),
+                                configuration.getString(C_ACCESS_KEY_SECRET))
                 ))
                 .withRegion(Regions.DEFAULT_REGION)
                 .build();
@@ -116,17 +116,17 @@ public class AWSIAMCheck extends Check {
         for (AWSUser user : users) {
             // User not in use?
             if (user.getPasswordLastUsed() != null
-                    && user.getPasswordLastUsed().isBefore(DateTime.now().minusDays(configuration.getInt(this, C_MAX_USER_INACTIVITY_DAYS)))) {
+                    && user.getPasswordLastUsed().isBefore(DateTime.now().minusDays(configuration.getInt(C_MAX_USER_INACTIVITY_DAYS)))) {
                 addIssue(new Issue(this, "User with no login in last <{}> days: {}. Last login: {}",
-                        configuration.getInt(this, C_MAX_USER_INACTIVITY_DAYS), user.getUsername(), user.getPasswordLastUsed()));
+                        configuration.getInt(C_MAX_USER_INACTIVITY_DAYS), user.getUsername(), user.getPasswordLastUsed()));
             }
 
             // Access key not in use?
             for (AWSAccessKey accessKey : user.getAccessKeys()) {
                 if (accessKey.getStatus().equals(AWSAccessKey.STATUS.ACTIVE)
-                        && accessKey.getLastUsed().isBefore(DateTime.now().minusDays(configuration.getInt(this, C_MAX_ACCESS_KEY_INACTIVITY_DAYS)))) {
+                        && accessKey.getLastUsed().isBefore(DateTime.now().minusDays(configuration.getInt(C_MAX_ACCESS_KEY_INACTIVITY_DAYS)))) {
                     addIssue(new Issue(this, "An active access key for user [{}] has not been used in last <{}> days. Last used: {}, created at: {}",
-                            user.getUsername(), configuration.getInt(this, C_MAX_ACCESS_KEY_INACTIVITY_DAYS), accessKey.getLastUsed(), accessKey.getCreateDate()));
+                            user.getUsername(), configuration.getInt(C_MAX_ACCESS_KEY_INACTIVITY_DAYS), accessKey.getLastUsed(), accessKey.getCreateDate()));
                 }
             }
 
@@ -138,16 +138,16 @@ public class AWSIAMCheck extends Check {
 
         // Do we have a proper password policy set?
         PasswordPolicy passwordPolicy = client.getAccountPasswordPolicy().getPasswordPolicy();
-        if (passwordPolicy.getMinimumPasswordLength() < configuration.getInt(this, C_MIN_PASSWORD_LENGTH)) {
+        if (passwordPolicy.getMinimumPasswordLength() < configuration.getInt(C_MIN_PASSWORD_LENGTH)) {
             addIssue(new Issue(this, "There is no password policy that enforces passwords with at least <{}> characters.",
-                    configuration.getInt(this, C_MIN_PASSWORD_LENGTH)));
+                    configuration.getInt(C_MIN_PASSWORD_LENGTH)));
         }
 
         if (passwordPolicy.getMaxPasswordAge() == null
                 || passwordPolicy.getMaxPasswordAge() <= 0
-                || passwordPolicy.getMaxPasswordAge() < configuration.getInt(this, C_MAX_PASSWORD_AGE)) {
+                || passwordPolicy.getMaxPasswordAge() < configuration.getInt(C_MAX_PASSWORD_AGE)) {
             addIssue(new Issue(this, "There is no password policy that enforces password change after <{}> days.",
-                    configuration.getInt(this, C_MAX_PASSWORD_AGE)));
+                    configuration.getInt(C_MAX_PASSWORD_AGE)));
         }
 
         if (passwordPolicy.getPasswordReusePrevention() == null || passwordPolicy.getPasswordReusePrevention() <= 0) {
@@ -162,7 +162,7 @@ public class AWSIAMCheck extends Check {
 
     @Override
     public boolean isConfigurationComplete() {
-        return configuration.isCheckConfigurationComplete(this, Arrays.asList(
+        return configuration.isComplete(Arrays.asList(
                 C_ACCESS_KEY,
                 C_ACCESS_KEY_SECRET,
                 C_MAX_USER_INACTIVITY_DAYS,
