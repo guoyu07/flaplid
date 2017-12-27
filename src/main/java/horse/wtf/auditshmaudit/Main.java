@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import horse.wtf.auditshmaudit.checks.Check;
@@ -43,6 +44,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
@@ -74,12 +76,12 @@ public class Main {
             ObjectMapper configObjectMapper = new ObjectMapper(new YAMLFactory());
             configuration = configObjectMapper.readValue(source.read(), Configuration.class);
         } catch (Exception e) {
-            LOG.info("Could not read configuration file.", e);
+            LOG.error("Could not read configuration file.", e);
             System.exit(FAILURE);
         }
 
         if (!configuration.isComplete()) {
-            LOG.info("Configuration is incomplete. Please refer to the example configuration file.");
+            LOG.error("Configuration is incomplete. Please refer to the example configuration file.");
             System.exit(FAILURE);
         }
 
@@ -98,12 +100,23 @@ public class Main {
         ImmutableList.Builder<Issue> issues = new ImmutableList.Builder<>();
 
         // Load all checks.
+        Set<String> checkIDs = Sets.newHashSet();
         for (Map<String, Object> configMap : configuration.checks) {
             CheckConfiguration checkConfiguration = new CheckConfiguration(configMap, configuration);
 
             if(!checkConfiguration.standardParametersAreComplete()) {
                 LOG.error("Missing attribute on check configuration. Skipping.");
                 continue;
+            }
+
+            // Do not allow duplicate check IDs.
+            if(checkConfiguration.isEnabled()) {
+                if (checkIDs.contains(checkConfiguration.getId())) {
+                    LOG.error("Duplicate check ID: [{}]. Terminating", checkConfiguration.getId());
+                    System.exit(FAILURE);
+                }
+
+                checkIDs.add(checkConfiguration.getId());
             }
 
             Check check;
@@ -145,7 +158,7 @@ public class Main {
             try {
                 check.run();
                 issues.addAll(check.getIssues());
-            }catch(FatalCheckException e) {
+            } catch(FatalCheckException e) {
                 LOG.error("Fatal error in check [{}]. Aborting.", check.getFullCheckIdentifier(), e);
             }
         }
