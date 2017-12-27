@@ -19,6 +19,8 @@ package horse.wtf.auditshmaudit;
 
 import horse.wtf.auditshmaudit.checks.Check;
 
+import java.util.regex.Matcher;
+
 public class Issue {
 
     private final Check check;
@@ -49,7 +51,7 @@ public class Issue {
         if (x == null) {
             return "null";
         } else {
-            return x.toString();
+            return Matcher.quoteReplacement(x.toString());
         }
     }
 
