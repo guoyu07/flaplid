@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>horse.wtf</groupId>
-    <artifactId>auditshmaudit</artifactId>
+    <artifactId>flaplid</artifactId>
     <version>0.1-SNAPSHOT</version>
 
     <repositories>
@@ -191,7 +191,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>horse.wtf.auditshmaudit.Main</mainClass>
+                            <mainClass>horse.wtf.flaplid.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
