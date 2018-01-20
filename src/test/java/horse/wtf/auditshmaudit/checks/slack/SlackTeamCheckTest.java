@@ -375,9 +375,9 @@ public class SlackTeamCheckTest extends CheckTestHelper {
         checkAndExpectIssues(RESPONSE_DELETED_USER_NO_MFA, 0);
     }
 
-    private void checkAndExpectIssues(String responseIssuefree, int i) throws IOException {
+    private void checkAndExpectIssues(String response, int issueCount) throws IOException {
         MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setResponseCode(200).setBody(responseIssuefree));
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(response));
         server.start();
         HttpUrl mockUrl = server.url("/");
 
@@ -389,7 +389,7 @@ public class SlackTeamCheckTest extends CheckTestHelper {
 
             check.check();
 
-            assertEquals(check.getIssues().size(), i);
+            assertEquals(check.getIssues().size(), issueCount);
         } finally {
             server.shutdown();
         }

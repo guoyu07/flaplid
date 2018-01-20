@@ -17,5 +17,28 @@
 
 package horse.wtf.auditshmaudit.checks.supplychain;
 
-public class FileDownloadCheck {
+import horse.wtf.auditshmaudit.checks.Check;
+import horse.wtf.auditshmaudit.configuration.CheckConfiguration;
+
+public class FileDownloadCheck extends Check {
+
+    public FileDownloadCheck(String id, CheckConfiguration configuration) {
+        super(id, configuration);
+    }
+
+    @Override
+    protected void check() {
+
+    }
+
+    @Override
+    public String getCheckType() {
+        return null;
+    }
+
+    @Override
+    public boolean isConfigurationComplete() {
+        return false;
+    }
+
 }
