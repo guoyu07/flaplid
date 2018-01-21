@@ -3,6 +3,7 @@ jdk:
   - oraclejdk8
   - openjdk8
 
+before_script: mvn clean
 sudo: false
 
 addons:
