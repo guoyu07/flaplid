@@ -55,7 +55,7 @@ public class Main {
     private static final int FAILURE = 1;
 
     public static void main(String[] argv) {
-        LOG.info("Starting up.");
+        LOG.info("Starting up. (•_•) .. ( •_•)>⌐■-■ .. (⌐■_■)");
         Version version = new Version();
         LOG.info("Version: {}.", version.getVersionString());
 
@@ -191,8 +191,13 @@ public class Main {
             }
         }
 
-        for (Issue issue : issues.build()) {
-            LOG.warn("Check {}: {}", issue.getCheck().getFullCheckIdentifier(), issue.getMessage());
+        ImmutableList<Issue> finalIssues = issues.build();
+        if(finalIssues.isEmpty()) {
+            LOG.info("No issues detected. (•̀ᴗ•́)و̑̑");
+        } else {
+            for (Issue issue : finalIssues) {
+                LOG.warn("Check {}: {}", issue.getCheck().getFullCheckIdentifier(), issue.getMessage());
+            }
         }
 
         for (Check disabledCheck : disabledChecks.build()) {
