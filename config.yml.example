@@ -4,6 +4,9 @@ checks:
   - type: aws_iam
     id: a-descriptive-id
     severity: warning
+    tags:
+      - aws
+      - fast
     enabled: false
     access_key:
     access_key_secret:
@@ -15,6 +18,9 @@ checks:
   - type: aws_security_groups
     id: a-descriptive-id
     severity: warning
+    tags:
+      - aws
+      - fast
     enabled: false
     access_key:
     access_key_secret:
@@ -35,6 +41,9 @@ checks:
   - type: github_organization
     id: a-descriptive-id
     severity: critical
+    tags:
+      - github
+      - fast
     enabled: false
     organization_name:
     username:
@@ -43,12 +52,18 @@ checks:
   - type: slack_team
     id: a-descriptive-id
     severity: critical
+    tags:
+      - slack
+      - fast
     enabled: false
     oauth_token:
 
   - type: website_download
     id: a-descriptive-id
     severity: emergency
+    tags:
+      - supplychain
+      - slow
     enabled: false
     url:
     css_selector:
@@ -60,6 +75,9 @@ checks:
   - type: website_link_target
     id: a-descriptive-id
     severity: emergency
+    tags:
+      - supplychain
+      - slow
     enabled: false
     url:
     css_selector:
@@ -71,6 +89,9 @@ checks:
   - type: website_redirect
     id: a-descriptive-id
     severity: emergency
+    tags:
+      - supplychain
+      - slow
     enabled: false
     url: http://example.com/
     expected_final_target: https://www.example.com/
@@ -80,6 +101,9 @@ checks:
   - type: dns
     id: a-descriptive-id
     severity: emergency
+    tags:
+      - supplychain
+      - fast
     enabled: false
     dns_server: 8.8.8.8
     dns_question:

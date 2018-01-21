@@ -67,6 +67,12 @@ public class Main {
                 .build()
                 .parse(argv);
 
+        if (cliArguments.hasTags()) {
+            LOG.info("Running all enabled checks matching any of the following tags: {}.", cliArguments.getTags());
+        } else {
+            LOG.info("No tags passed. Running all enabled checks.");
+        }
+
         // Parse configuration.
         Configuration configuration = null;
         try {
@@ -184,8 +190,12 @@ public class Main {
             }
 
             try {
-                check.run();
-                issues.addAll(check.getIssues());
+                if (cliArguments.hasTags() && checkConfiguration.hasARequestedTag(cliArguments.getTags())) {
+                    check.run();
+                    issues.addAll(check.getIssues());
+                } else {
+                    LOG.info("Not running check [{}] because it does not have any of the requested tags.", checkConfiguration.getId());
+                }
             } catch(FatalCheckException e) {
                 LOG.error("Fatal error in check [{}]. Aborting.", check.getFullCheckIdentifier(), e);
             }

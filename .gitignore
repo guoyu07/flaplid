@@ -3,6 +3,7 @@ target/
 dependency-reduced-pom.xml
 
 *.iml
+phantomjsdriver.log
 
 attic/
 checks.d/

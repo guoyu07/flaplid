@@ -37,6 +37,7 @@ public class CheckConfiguration {
     private final static String C_TYPE = "type";
     private final static String C_ID = "id";
     private final static String C_SEVERITY = "severity";
+    private final static String C_TAGS = "tags";
     private final static String C_ENABLED = "enabled";
 
     public CheckConfiguration(Map<String, Object> config, Configuration configuration) {
@@ -138,7 +139,7 @@ public class CheckConfiguration {
     }
 
     public boolean standardParametersAreComplete() {
-        for (String requiredStandardParameter : Arrays.asList(C_TYPE, C_ID, C_SEVERITY, C_ENABLED)) {
+        for (String requiredStandardParameter : Arrays.asList(C_TYPE, C_ID, C_SEVERITY, C_TAGS, C_ENABLED)) {
             if (getObject(requiredStandardParameter) == null) {
                 LOG.error("Required standard config variable not set: {}", requiredStandardParameter);
                 return false;
@@ -157,6 +158,24 @@ public class CheckConfiguration {
         }
 
         return true;
+    }
+
+    public List<String> getTags() {
+        return getListOfStrings(C_TAGS);
+    }
+
+    public boolean hasARequestedTag(List<String> requestedTags) {
+        if(getTags() == null) {
+            return false;
+        }
+
+        for (String requestedTag : requestedTags) {
+            if (getTags().contains(requestedTag)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public class PortAndProtocol {

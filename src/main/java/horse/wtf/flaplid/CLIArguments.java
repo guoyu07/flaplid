@@ -18,14 +18,39 @@
 package horse.wtf.flaplid;
 
 import com.beust.jcommander.Parameter;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 
 public class CLIArguments {
 
     @Parameter(names={"--config-file", "-c"}, required = true)
     private String configFilePath;
 
+    @Parameter(names={"--tags", "-t"}, required = false)
+    private String tags;
+
     public String getConfigFilePath() {
         return configFilePath;
+    }
+
+    public boolean hasTags() {
+        return !getTags().isEmpty();
+    }
+
+    public ImmutableList<String> getTags() {
+        if (tags == null || tags.isEmpty()) {
+            return new ImmutableList.Builder<String>().build();
+        }
+
+        return ImmutableList.copyOf(Splitter.on(",").trimResults().splitToList(tags));
+    }
+
+    public void setConfigFilePath(String configFilePath) {
+        this.configFilePath = configFilePath;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
 }
