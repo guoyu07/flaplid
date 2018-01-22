@@ -111,3 +111,15 @@ checks:
     expected_answer:
       -
       -
+
+  - type: graylog_users
+    id: a-descriptive-id
+    severity: warning
+    tags:
+      - graylog
+      - fast
+    enabled: false
+    graylog_api_url: https://graylog.example.com/api
+    username: bob
+    password: secret
+    maximum_user_inactivity_days: 30
