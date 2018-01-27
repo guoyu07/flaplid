@@ -33,7 +33,6 @@ import horse.wtf.flaplid.checks.aws.AWSIAMCheck;
 import horse.wtf.flaplid.checks.aws.EC2SecurityGroupsCheck;
 import horse.wtf.flaplid.checks.dns.DNSCheck;
 import horse.wtf.flaplid.checks.github.GitHubOrganizationCheck;
-import horse.wtf.flaplid.checks.graylog.GraylogUsersCheck;
 import horse.wtf.flaplid.checks.slack.SlackTeamCheck;
 import horse.wtf.flaplid.checks.supplychain.WebsiteDownloadCheck;
 import horse.wtf.flaplid.checks.supplychain.WebsiteLinkTargetCheck;
@@ -180,9 +179,6 @@ public class Main {
                 case WebsiteRedirectCheck.TYPE:
                      check = new WebsiteRedirectCheck(checkConfiguration.getId(), checkConfiguration);
                      break;
-                case GraylogUsersCheck.TYPE:
-                    check = new GraylogUsersCheck(checkConfiguration.getId(), checkConfiguration, httpClient, om);
-                    break;
                 default:
                     LOG.error("Unknown check type [{}]. Skipping.", checkConfiguration.getType());
                     continue;
