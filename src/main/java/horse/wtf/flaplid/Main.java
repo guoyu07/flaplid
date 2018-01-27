@@ -189,15 +189,17 @@ public class Main {
                 continue;
             }
 
-            try {
-                if (cliArguments.hasTags() && checkConfiguration.hasARequestedTag(cliArguments.getTags())) {
+            if (cliArguments.hasTags() && checkConfiguration.hasARequestedTag(cliArguments.getTags())) {
+                try {
                     check.run();
                     issues.addAll(check.getIssues());
-                } else {
-                    LOG.info("Not running check [{}] because it does not have any of the requested tags.", checkConfiguration.getId());
+                } catch(Exception e) {
+                    LOG.error(e);
+                    issues.add(new Issue(check, "Check failed unexpectedly. Check the flaplid error log for more details." +
+                            "Exception was: [{}]", e.getMessage()));
                 }
-            } catch(FatalCheckException e) {
-                LOG.error("Fatal error in check [{}]. Aborting.", check.getFullCheckIdentifier(), e);
+            } else {
+                LOG.info("Not running check [{}] because it does not have any of the requested tags.", checkConfiguration.getId());
             }
         }
 
