@@ -80,8 +80,6 @@ public class WebsiteRedirectCheck extends WebDriverCheck {
             addIssue(new Issue(this, "We have been redirected to URL [{}] that does not match the expected target [{}].",
                     destination, expectedTarget));
         }
-
-        throw new RuntimeException("whaaat");
     }
 
     @Override
