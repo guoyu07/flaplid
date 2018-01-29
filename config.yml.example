@@ -1,4 +1,6 @@
+sensor_id: flaplid-checks-1
 attic_folder: attic/
+graylog_address: graylog.example.com:12000
 
 checks:
   - type: aws_iam

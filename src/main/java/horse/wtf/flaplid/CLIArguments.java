@@ -19,6 +19,7 @@ package horse.wtf.flaplid;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 public class CLIArguments {
@@ -38,7 +39,7 @@ public class CLIArguments {
     }
 
     public ImmutableList<String> getTags() {
-        if (tags == null || tags.isEmpty()) {
+        if (Strings.isNullOrEmpty(tags)) {
             return new ImmutableList.Builder<String>().build();
         }
 

@@ -19,6 +19,8 @@ package horse.wtf.flaplid.configuration;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
+import com.sun.istack.internal.NotNull;
+import horse.wtf.flaplid.uplink.graylog.GraylogAddress;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,15 +35,22 @@ public class Configuration {
     @JsonProperty("attic_folder")
     public String atticFolder;
 
+    @JsonProperty("sensor_id")
+    public String sensorId;
+
+    @JsonProperty("graylog_address")
+    private String graylogAddress;
+
     @JsonProperty("include")
-    @Nullable
     public String include;
 
     @JsonProperty
     public List<Map<String, Object>> checks;
 
     public boolean isComplete() {
-        return checks != null && !Strings.isNullOrEmpty(atticFolder);
+        return checks != null
+                && !Strings.isNullOrEmpty(sensorId)
+                && !Strings.isNullOrEmpty(atticFolder);
     }
 
     public void setAtticFolder(String atticFolder) {
@@ -54,6 +63,29 @@ public class Configuration {
 
     public void setChecks(List<Map<String, Object>> checks) {
         this.checks = checks;
+    }
+
+    @Nullable
+    public GraylogAddress getGraylogAddress() {
+        if(Strings.isNullOrEmpty(graylogAddress)) {
+            return null;
+        }
+
+        if(!graylogAddress.contains(":")) {
+            throw new RuntimeException("Invalid graylog_address: [" + graylogAddress + "]. Remove configuration parameter to disable Graylog uplink.");
+        }
+
+        String[] parts = graylogAddress.split(":");
+
+        if(parts.length != 2 || Strings.isNullOrEmpty(parts[0]) || Strings.isNullOrEmpty(parts[1])) {
+            throw new RuntimeException("Invalid graylog_address: [" + graylogAddress + "]. Remove configuration parameter to disable Graylog uplink.");
+        }
+
+        try {
+            return new GraylogAddress(parts[0], Integer.parseInt(parts[1]));
+        } catch(NumberFormatException e) {
+            throw new RuntimeException("Invalid port in graylog_address: <" + parts[1] + ">.", e);
+        }
     }
 
 }

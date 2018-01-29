@@ -97,8 +97,6 @@ public class WebsiteLinkTargetCheck extends WebDriverCheck {
             addIssue(new Issue(this, "We have been redirected to URL [{}] that does not match the expected target [{}].",
                     destination, expectedTarget));
         }
-
-        return;
     }
 
     @Override

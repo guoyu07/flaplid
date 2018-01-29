@@ -28,7 +28,6 @@ import com.google.common.collect.Sets;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import horse.wtf.flaplid.checks.Check;
-import horse.wtf.flaplid.checks.FatalCheckException;
 import horse.wtf.flaplid.checks.aws.AWSIAMCheck;
 import horse.wtf.flaplid.checks.aws.EC2SecurityGroupsCheck;
 import horse.wtf.flaplid.checks.dns.DNSCheck;
@@ -39,6 +38,10 @@ import horse.wtf.flaplid.checks.supplychain.WebsiteLinkTargetCheck;
 import horse.wtf.flaplid.checks.supplychain.WebsiteRedirectCheck;
 import horse.wtf.flaplid.configuration.CheckConfiguration;
 import horse.wtf.flaplid.configuration.Configuration;
+import horse.wtf.flaplid.uplink.Notification;
+import horse.wtf.flaplid.uplink.graylog.GraylogUplink;
+import horse.wtf.flaplid.uplink.NoOpUplink;
+import horse.wtf.flaplid.uplink.Uplink;
 import okhttp3.OkHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,6 +49,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
@@ -120,6 +124,22 @@ public class Main {
             System.exit(FAILURE);
         }
 
+        String runId = UUID.randomUUID().toString();
+        LOG.info("Flaplid run ID is [{}] on sensor [{}].", runId, configuration.sensorId);
+
+        // Connect to Graylog if enabled.
+        Uplink uplink = new NoOpUplink();
+        if (configuration.getGraylogAddress() != null) {
+            uplink = new GraylogUplink(
+                    configuration.getGraylogAddress(),
+                    configuration.sensorId,
+                    runId
+            );
+        } else {
+            LOG.info("Graylog uplink is DISABLED.");
+        }
+        uplink.notify(new Notification("Starting flaplid run."));
+
         ObjectMapper om = new ObjectMapper();
         om.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -189,7 +209,7 @@ public class Main {
                 continue;
             }
 
-            if (cliArguments.hasTags() && checkConfiguration.hasARequestedTag(cliArguments.getTags())) {
+            if (!cliArguments.hasTags() || checkConfiguration.hasARequestedTag(cliArguments.getTags())) {
                 try {
                     check.run();
                     issues.addAll(check.getIssues());
@@ -203,17 +223,24 @@ public class Main {
             }
         }
 
-        ImmutableList<Issue> finalIssues = issues.build();
-        if(finalIssues.isEmpty()) {
-            LOG.info("No issues detected. (•̀ᴗ•́)و̑̑");
-        } else {
-            for (Issue issue : finalIssues) {
-                LOG.warn("Check {}: {}", issue.getCheck().getFullCheckIdentifier(), issue.getMessage());
-            }
+        // Create issues for disabled checks.
+        for (Check disabledCheck : disabledChecks.build()) {
+            issues.add(new Issue(disabledCheck, "Check [{}] is disabled and was not executed. Remove permanently disabled checks from the configuration.", disabledCheck.getFullCheckIdentifier()));
         }
 
-        for (Check disabledCheck : disabledChecks.build()) {
-            LOG.warn("Check [{}] is disabled and was not executed.", disabledCheck.getFullCheckIdentifier());
+        // TODO add fields to final report: flaplid_check[severity, id, name], flaplid_run_duration_ms, flaplid_total_checks_run, flaplid_disabled_checks, flaplid_ok_checks, flaplid_issue_checks
+
+        // Report all issues.
+        ImmutableList<Issue> finalIssues = issues.build();
+        if(finalIssues.isEmpty()) {
+            LOG.info("Finished run. No issues detected. (•̀ᴗ•́)و̑̑");
+            uplink.notify(new Notification("Finished run. No issues detected."));
+        } else {
+            uplink.notify(new Notification("Finished run. <" + finalIssues.size() + "> issues detected."));
+            for (Issue issue : finalIssues) {
+                LOG.warn("Check {}: {}", issue.getCheck().getFullCheckIdentifier(), issue.getMessage());
+                uplink.notify(new Notification(issue));
+            }
         }
 
     }
