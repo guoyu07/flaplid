@@ -4,7 +4,7 @@ foo
 
 ## Checks
 
-* Supply Chain
+* _Supply Chain_
   * **DNS records are exactly as expected**
     * An attacker could change DNS traffic to a page looking just like yours but not under your control.
   * **HTTP request ends at expected address after possible redirects** (simulates full Browser)
@@ -13,16 +13,16 @@ foo
   * **A file download triggered by a click on a link on a website downloads a file with an expected checksum** (simulates full Browser)
   * **A file downloaded through a direct HTTP request has the expected checksum**
 * Password / User / Configuration audit
-  * GitHub Organization
+  * **GitHub Organization**
     * Reports users in a organization that do not have two factor authentication enabled
-  * Slack Team
+  * **Slack Team**
     * Reports users in a team that do not have two factor authentication enabled
-  * AWS IAM
+  * **AWS IAM**
     * Reports users that did not recently sign in (unused accounts)
     * Reports access keys that were not recently used (unused access keys)
     * Reports users with console access that do not have two factor authentication enabled
     * Reports missing or misconfigured password policies (in a very opionated way)
-  * AWS Security Groups
+  * **AWS Security Groups**
     * Reports security groups that have critical ports open to the world (`0.0.0.0/0`, `::/0`)
 
 ## Graylog integration
