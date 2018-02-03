@@ -6,12 +6,13 @@ foo
 
 * Supply Chain
   * DNS records are exactly as expected
-  * Website Redirect (simulates full Browser)
-  * Website Link Target (simulates full Browser)
-  * Download from Website, Checksum Comparison (simulates full Browser)
-  * Direct HTTP File Download Checksum Comparison
+  * HTTP request ends at expected address after possible redirects (simulates full Browser)
+  * HTTP request after click on a link on a website ends at expected address after possible redirects (simulates full Browser)
+  * A file download triggered by a click on a link on a website downloads a file with an expected checksum (simulates full Browser)
+  * A file downloaded through a direct HTTP request has the expected checksum
 * Password / User / Configuration audit
   * GitHub Organization
+    * All users in a organization ahve two factor authentication enabled
   * Slack Team
   * AWS IAM
   * AWS Security Groups
