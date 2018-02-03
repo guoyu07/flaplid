@@ -12,10 +12,18 @@ foo
   * A file downloaded through a direct HTTP request has the expected checksum
 * Password / User / Configuration audit
   * GitHub Organization
-    * All users in a organization ahve two factor authentication enabled
+    * Reports users in a organization that do not have two factor authentication enabled
   * Slack Team
+    * Reports users in a team that do not have two factor authentication enabled
   * AWS IAM
+    * Reports users that did not recently sign in (unused accounts)
+    * Reports access keys that were not recently used (unused access keys)
+    * Reports users with console access that do not have two factor authentication enabled
+    * Reports missing or misconfigured password policies (in a very opionated way)
   * AWS Security Groups
+    * Reports security groups that have critical ports open to the world (`0.0.0.0/0`, `::/0`)
+
+## Graylog integration
 
 ## Writing your own checks
 
