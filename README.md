@@ -6,7 +6,9 @@ foo
 
 * Supply Chain
   * DNS records are exactly as expected
+    * An attacker could change DNS traffic to a page looking just like yours but not under your control.
   * HTTP request ends at expected address after possible redirects (simulates full Browser)
+    * An attacker with access to your website or DNS could change a link to another resource like, for example, documentation to give malicious instructions to a user who assumes its your instructions. This check is simulating a full browser, including Javascript execution, to even catch last-moment changes to a link by malicious JavaScript code.
   * HTTP request after click on a link on a website ends at expected address after possible redirects (simulates full Browser)
   * A file download triggered by a click on a link on a website downloads a file with an expected checksum (simulates full Browser)
   * A file downloaded through a direct HTTP request has the expected checksum
