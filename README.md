@@ -4,7 +4,19 @@ foo
 
 ## Checks
 
-foo
+* Supply Chain
+  * DNS records are exactly as expected
+  * Website Redirect (simulates full Browser)
+  * Website Link Target (simulates full Browser)
+  * Download from Website, Checksum Comparison (simulates full Browser)
+  * Direct HTTP File Download Checksum Comparison
+* Password / User / Configuration audit
+  * GitHub Organization
+  * Slack Team
+  * AWS IAM
+  * AWS Security Groups
+
+## Writing your own checks
 
 ## Local development
 
