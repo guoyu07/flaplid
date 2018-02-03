@@ -12,7 +12,7 @@ foo
   * **HTTP request after click on a link on a website ends at expected address after possible redirects** (simulates full Browser)
   * **A file download triggered by a click on a link on a website downloads a file with an expected checksum** (simulates full Browser)
   * **A file downloaded through a direct HTTP request has the expected checksum**
-* Password / User / Configuration audit
+* _Password / User / Configuration audit_
   * **GitHub Organization**
     * Reports users in a organization that do not have two factor authentication enabled
   * **Slack Team**
