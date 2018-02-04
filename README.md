@@ -4,6 +4,8 @@ foo
 
 ## Checks
 
+The following check types can currently be configured for Flaplid. See also _Writing your own checks_ below.
+
 * _Supply Chain_
   * **DNS records are exactly as expected**
     * An attacker could change DNS traffic to a page looking just like yours but not under your control.
