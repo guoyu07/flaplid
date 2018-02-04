@@ -1,6 +1,6 @@
 # Flaplid
 
-foo
+Flaplid is an easy to use suite of pre-built security checks to detect supply chain attacks and continously monitor security relevant configuration.
 
 ## Checks
 
