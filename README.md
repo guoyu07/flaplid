@@ -4,7 +4,7 @@ foo
 
 ## Checks
 
-The following check types can currently be configured for Flaplid. See also _Writing your own checks_ below.
+The following check types can currently be configured for Flaplid. See also _Writing your own checks_ below and [Configuring Flaplid](https://github.com/lennartkoopmann/flaplid/wiki/Configuring-Flaplid) in the wiki.
 
 * _Supply Chain_
   * **DNS records are exactly as expected**
