@@ -1,6 +1,8 @@
 # Flaplid
 
-Flaplid is an easy to use suite of pre-built security checks to detect supply chain attacks and continously monitor security relevant configuration.
+Flaplid is an easy to use suite of pre-built security checks to continuously monitor security relevant configuration. It is supposed to be run as a cron job and will report issues it finds for each configured check.
+
+## Installation and usage
 
 ## Checks
 
