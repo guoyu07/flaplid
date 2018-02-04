@@ -4,18 +4,18 @@ foo
 
 ## Checks
 
-The following check types can currently be configured for Flaplid. See also _Writing your own checks_ below and [Configuring Flaplid](https://github.com/lennartkoopmann/flaplid/wiki/Configuring-Flaplid) in the wiki.
+Currently, the following check types can be configured for Flaplid. See also _Writing your own checks_ below and [Configuring Flaplid](https://github.com/lennartkoopmann/flaplid/wiki/Configuring-Flaplid) in the wiki.
 
 * _Supply Chain_
-  * **DNS records are exactly as expected**
+  * **DNS records are exactly as expected** - [Configure this check](https://github.com/lennartkoopmann/flaplid/wiki/Checks:-DNS)
     * An attacker could change DNS traffic to a page looking just like yours but not under your control.
   * **HTTP request ends at expected address after possible redirects** (simulates full Browser)
     * An attacker with access to your website or DNS could change a link to another resource like, for example, documentation to give malicious instructions to a user who assumes its your instructions. This check is simulating a full browser, including Javascript execution, to even catch last-moment changes to a link by malicious JavaScript code.
-  * **HTTP request after click on a link on a website ends at expected address after possible redirects** (simulates full Browser)
+  * **HTTP request after click on a link on a website ends at expected address after possible redirects** (simulates full Browser) - [Configure this check](https://github.com/lennartkoopmann/flaplid/wiki/Checks:-Website-Link-Target)
   * **A file download triggered by a click on a link on a website downloads a file with an expected checksum** (simulates full Browser)
   * **A file downloaded through a direct HTTP request has the expected checksum**
 * _Password / User / Configuration audit_
-  * **GitHub Organization**
+  * **GitHub Organization** - [Configure this check](https://github.com/lennartkoopmann/flaplid/wiki/Checks:-GitHub)
     * Reports users in a organization that do not have two factor authentication enabled
   * **Slack Team**
     * Reports users in a team that do not have two factor authentication enabled
