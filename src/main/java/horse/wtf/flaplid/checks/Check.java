@@ -34,7 +34,7 @@ public abstract class Check {
     private final CheckConfiguration configuration;
     private Attic attic;
 
-    protected abstract void check();
+    protected abstract void check() throws FatalCheckException;
     public abstract String getCheckType();
     public abstract boolean isConfigurationComplete();
 
@@ -53,12 +53,7 @@ public abstract class Check {
             throw new FatalCheckException("Missing configuration parameters for check [" + getFullCheckIdentifier() + "] and check is not disabled.");
         }
 
-        try {
-            check();
-        } catch(Exception e){
-            throw new FatalCheckException(e);
-        }
-
+        check();
     }
 
     public boolean disabled() {
