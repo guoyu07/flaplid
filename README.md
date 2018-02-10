@@ -1,20 +1,31 @@
 # Flaplid
 
-Flaplid is an easy to use suite of pre-built security checks to continuously monitor security relevant configuration. It is supposed to be run as a cron job and will report issues it finds for each configured check.
+Flaplid is an easy to use suite of pre-built security checks to continuously monitor security relevant configuration. It
+is supposed to be run as a cron job and will report issues it finds for each configured check.
 
 ## Installation and usage
 
+
+
 ## Checks
 
-Currently, the following check types can be configured for Flaplid. See also _Writing your own checks_ below and [Configuring Flaplid](https://github.com/lennartkoopmann/flaplid/wiki/Configuring-Flaplid) in the wiki.
+Currently, the following check types can be configured for Flaplid. See also _Writing your own checks_ below and
+[Configuring Flaplid](https://github.com/lennartkoopmann/flaplid/wiki/Configuring-Flaplid) in the wiki.
 
 * _Supply Chain_
   * **DNS records are exactly as expected** - [Configure this check](https://github.com/lennartkoopmann/flaplid/wiki/Checks:-DNS)
     * An attacker could change DNS traffic to a page looking just like yours but not under your control.
-  * **HTTP request ends at expected address after possible redirects** (simulates full Browser)
-    * An attacker with access to your website or DNS could change a link to another resource like, for example, documentation to give malicious instructions to a user who assumes its your instructions. This check is simulating a full browser, including Javascript execution, to even catch last-moment changes to a link by malicious JavaScript code.
-  * **HTTP request after click on a link on a website ends at expected address after possible redirects** (simulates full Browser) - [Configure this check](https://github.com/lennartkoopmann/flaplid/wiki/Checks:-Website-Link-Target)
-  * **A file download triggered by a click on a link on a website downloads a file with an expected checksum** (simulates full Browser)
+  * **HTTP request ends at expected address after possible redirects** (simulates full browser, stores artifacts locally
+    for forensics)
+    * An attacker with access to your website or DNS could change a link to another resource like, for example,
+      documentation to give malicious instructions to a user who assumes its your instructions. This check is simulating
+      a full browser, including Javascript execution, to even catch last-moment changes to a link by malicious JavaScript
+      code.
+  * **HTTP request after click on a link on a website ends at expected address after possible redirects**
+    (simulates full browser, stores artifacts locally for forensics)
+    - [Configure this check](https://github.com/lennartkoopmann/flaplid/wiki/Checks:-Website-Link-Target)
+  * **A file download triggered by a click on a link on a website downloads a file with an expected checksum**
+    (simulates full browser, stores artifacts locally for forensics)
   * **A file downloaded through a direct HTTP request has the expected checksum**
 * _Password / User / Configuration audit_
   * **GitHub Organization** - [Configure this check](https://github.com/lennartkoopmann/flaplid/wiki/Checks:-GitHub)
@@ -41,7 +52,8 @@ We show version and build information during startup:
 
 > 18:38:40.299 [main] INFO Main - Version: 0.1-SNAPSHOT built at [2017-12-24T17:38:36Z] from [d5af363-dirty].
 
-The required information is built by maven during the final release and packaging step, but probably not by your IDE. Tell your IDE to execute the required maven goals before each local build like this in, for example, IntelliJ IDEA:
+The required information is built by maven during the final release and packaging step, but probably not by your IDE.
+Tell your IDE to execute the required maven goals before each local build like this in, for example, IntelliJ IDEA:
 
 ![IntelliJ build steps](maven-build-ide.png)
 
