@@ -85,11 +85,32 @@ Available CLI arguments:
 
 ## Configuration
 
+The Flaplid configuration file has to be in YAML format. Note that for valid YAML, indention is important and must be 
+set to two whitespaces. This can be annoying to debug but leads to vastly improved readability compared to JSON, XML or
+flat configuration files.
 
+The following parameters are mandatory and Flaplid will exit with an error if they are absent:
+
+* `attic_folder`: Relative path to a local folder that will be used to store artifacts of failed checks. For example, if
+                  a file download check raises an issue, the downloaded file will be stored in the `attic_folder` to
+                  allow later analysis and forensics. (See _Attic_ below)
+* `checks`: An array of check configurations
+
+An example configuration can be found [here](https://github.com/lennartkoopmann/flaplid/blob/master/config.yml.example).
+
+See _Checks_ above for all available checks and their respective configurations.
+
+### Including multiple configuration files
+
+## Attic
 
 ## Graylog integration
 
+TBD
+
 ## Writing your own checks
+
+TBD
 
 ## Local development
 
