@@ -19,7 +19,6 @@ package horse.wtf.flaplid.configuration;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
-import com.sun.istack.internal.NotNull;
 import horse.wtf.flaplid.uplink.graylog.GraylogAddress;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
