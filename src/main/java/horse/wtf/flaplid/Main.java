@@ -160,6 +160,7 @@ public class Main {
         // Load all checks.
         Set<String> checkIDs = Sets.newHashSet();
         int checksExecuted = 0;
+        int checkExceptions = 0;
         Stopwatch timer = Stopwatch.createStarted();
         for (Map<String, Object> configMap : configuration.checks) {
             CheckConfiguration checkConfiguration = new CheckConfiguration(configMap, configuration);
@@ -220,10 +221,12 @@ public class Main {
                     checksExecuted += 1;
                     check.run();
                     issues.addAll(check.getIssues());
-                } catch(FatalCheckException e) {
-                    LOG.error(e);
-                    issues.add(new Issue(check, "Check failed unexpectedly. Check the flaplid error log for more details. " +
-                            "Exception was: [{}]", e.getMessage()));
+                } catch(Exception e) {
+                    checkExceptions += 1;
+                    LOG.error("Check failed.", e);
+
+                    uplink.notify(new Notification(Notification.TYPE.RUN_CHECK_EXCEPTION, "Check failed unexpectedly. Check the flaplid error log for more details. " +
+                            "Exception was: [" + e.getMessage() + "]"));
                 }
             } else {
                 LOG.info("Not running check [{}] because it does not have any of the requested tags.", checkConfiguration.getId());
@@ -244,6 +247,7 @@ public class Main {
         reportMetadata.put(Notification.FIELD.ISSUE_COUNT, finalIssues.size());
         reportMetadata.put(Notification.FIELD.TOTAL_CHECKS_EXECUTED, checksExecuted);
         reportMetadata.put(Notification.FIELD.TOTAL_CHECKS_DISABLED, finalDisabledChecks.size());
+        reportMetadata.put(Notification.FIELD.TOTAL_EXCEPTIONS, checkExceptions);
         reportMetadata.put(Notification.FIELD.RUN_DURATION_MS, timer.elapsed(TimeUnit.MILLISECONDS));
         if(finalIssues.isEmpty()) {
             LOG.info("Finished run. No issues detected. (•̀ᴗ•́)و̑̑");

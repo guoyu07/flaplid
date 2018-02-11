@@ -25,7 +25,7 @@ import java.util.Map;
 public class Notification {
 
     public enum TYPE {
-        ISSUE, RUN_ISSUE_COUNT, RUN_META
+        ISSUE, RUN_ISSUE_COUNT, RUN_META, RUN_CHECK_EXCEPTION
     }
 
     public enum FIELD {
@@ -34,6 +34,7 @@ public class Notification {
         RUN_DURATION_MS,
         TOTAL_CHECKS_EXECUTED,
         TOTAL_CHECKS_DISABLED,
+        TOTAL_EXCEPTIONS,
         CHECK_SEVERITY,
         CHECK_ID,
         CHECK_NAME

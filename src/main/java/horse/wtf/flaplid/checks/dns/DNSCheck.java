@@ -89,10 +89,6 @@ public class DNSCheck extends Check {
                         MXRecord mx = (MXRecord) record;
                         recordsBuilder.add(mx.getTarget().toString(true));
                         break;
-                    case Type.A:
-                        ARecord a = (ARecord) record;
-                        recordsBuilder.add(a.getAddress().getHostAddress());
-                        break;
                     case Type.AAAA:
                         AAAARecord aaaa = (AAAARecord) record;
                         recordsBuilder.add(aaaa.getAddress().getHostAddress());
