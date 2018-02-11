@@ -102,6 +102,59 @@ See _Checks_ above for all available checks and their respective configurations.
 
 ### Including multiple configuration files
 
+The Flaplid configuration file can grow pretty large if you are running many checks. To allow organizing check
+configurations into separate files, you can instruct Flaplid to read all files in another folder that end with `.yml`
+and merge their configurations.
+
+For example, your main `config.yml` could look like this:
+
+```
+attic_folder: attic/
+include: conf.d/
+```
+
+The `conf.d` folder has the following files:
+
+```
+$ ls -al conf.d
+drwxrwxr-x 2 tun3 tun3 4096 Feb 10 19:31 .
+drwxr-xr-x 8 tun3 tun3 4096 Feb 10 19:30 ..
+-rw-r--r-- 1 tun3 tun3    0 Feb 10 19:31 aws_checks.yml
+-rw-r--r-- 1 tun3 tun3    0 Feb 10 19:31 dns_checks.yml
+-rw-r--r-- 1 tun3 tun3    0 Feb 10 19:31 website_checks.yml
+```
+
+Each of the `.yml` files in `conf.d` contain their own `checks` array:
+
+```
+checks:
+  - type: website_redirect
+    id: rdr-graylog-net
+    severity: emergency
+    tags:
+      - redirects
+      - slow
+    enabled: true
+    url: http://graylog.net/
+    expected_final_target: https://www.graylog.org/
+    archive_mismatches: true
+    archive_matches: false
+
+  - type: website_redirect
+    id: rdr-www-graylog-net
+    severity: emergency
+    tags:
+      - redirects
+      - slow
+    enabled: true
+    url: http://www.graylog.net/
+    expected_final_target: https://www.graylog.org/
+    archive_mismatches: true
+    archive_matches: false
+```
+
+Flaplid will merge all the `checks` arrays it finds into one large array and then execute each test.
+
 ## Attic
 
 ## Graylog integration
