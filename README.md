@@ -7,10 +7,6 @@
 Flaplid is an easy to use suite of pre-built security checks to continuously monitor security relevant configuration. It
 is supposed to be run as a cron job and will report issues it finds for each configured check.
 
-## Installation and usage
-
-
-
 ## Checks
 
 Currently, the following check types can be configured for Flaplid. See also _Writing your own checks_ below and
@@ -43,6 +39,53 @@ Currently, the following check types can be configured for Flaplid. See also _Wr
     * Reports missing or misconfigured password policies (in a very opionated way)
   * **AWS Security Groups**
     * Reports security groups that have critical ports open to the world (`0.0.0.0/0`, `::/0`)
+
+## Prerequisites
+
+All you need is a operating system with at least Java 8 installed. (`sudo apt install openjdk-8-jre-headless`) Flaplid
+is known to be working on Linux, OSX and Windows.
+
+It is recommended to connect a [Graylog](https://www.graylog.org/) (free and open source log management - see
+_Graylog integration_ below) system for easy reporting and alerting but you could run Flaplid without it.
+
+Flaplid does not require any significant resources. It will run absolutely fine on the smallest public cloud hosts or any
+Raspberry Pi model, including the Pi Zero.
+
+## Installation and usage
+
+All you need is the Flaplid JAR file, downloaded from the [Releases page](https://github.com/lennartkoopmann/flaplid/releases).
+
+Example execution:
+
+```
+$ java -jar flaplid-0.4.jar -c config.yml --tags foo,bar,baz
+2018-02-10T18:43:15.525 [main] INFO  horse.wtf.flaplid.Main - Starting up. (•_•) .. ( •_•)>⌐■-■ .. (⌐■_■)
+2018-02-10T18:43:15.528 [main] INFO  horse.wtf.flaplid.Main - Version: 0.3 built at [2018-02-11T00:35:54Z].
+2018-02-10T18:43:15.555 [main] INFO  horse.wtf.flaplid.Main - Running all enabled checks matching any of the following tags: [testing, slack].
+2018-02-10T18:43:15.715 [main] INFO  horse.wtf.flaplid.Main - Including configuration from [/mnt/workspace/flaplid/conf.d].
+2018-02-10T18:43:15.718 [main] INFO  horse.wtf.flaplid.Main - Reading configuration from [/mnt/workspace/flaplid/conf.d/acmecorp_dns.yml].
+2018-02-10T18:43:15.867 [main] INFO  horse.wtf.flaplid.Main - Not running check [acmecorp-aws-iam] because it does not have any of the requested tags.
+2018-02-10T18:43:15.867 [main] INFO  horse.wtf.flaplid.Main - Not running check [acmecorp-aws-security-groups] because it does not have any of the requested tags.
+2018-02-10T18:43:15.871 [main] INFO  horse.wtf.flaplid.checks.Check - Running check [slack_team:acmecorp#warning].
+2018-02-10T18:43:16.315 [main] INFO  horse.wtf.flaplid.checks.Check - Running check [dns:testing-a-failing-test#emergency].
+2018-02-10T18:43:16.400 [main] INFO  horse.wtf.flaplid.checks.Check - Running check [dns:testing-another-failing-test#emergency].
+
+[... check results below ...]
+
+2018-02-10T18:43:16.484 [main] WARN  horse.wtf.flaplid.Main - Check slack_team:acmecorp-slack#warning: Team member has no MFA device configured: john_doe (John Doe)
+2018-02-10T18:43:16.484 [main] WARN  horse.wtf.flaplid.Main - Check slack_team:acmecorp-slack#warning: Team member has no MFA device configured: jane_doe (Jane Doe)
+2018-02-10T18:43:16.486 [main] WARN  horse.wtf.flaplid.Main - Check dns:testing-a-failing-test#emergency: Expected records [173.194.67.27, alt1.aspmx.l.google.com, alt2.aspmx.l.google.com, aspmx2.googlemail.com, aspmx3.googlemail.com] but found [alt1.aspmx.l.google.com, alt2.aspmx.l.google.com, aspmx2.googlemail.com, aspmx3.googlemail.com, aspmx.l.google.com].
+2018-02-10T18:43:16.486 [main] WARN  horse.wtf.flaplid.Main - Check dns:testing-another-failing-test#emergency: Expected no DNS records but found <1>. The records are: [188.166.203.69]
+```
+
+Available CLI arguments:
+
+* `--config-file`, `-c` (required): Path to Flaplid configuration file (see _Configuration_ below)
+* `--tags`, `-t` (optional): Only run checks with specified tags. Multiple tags can be specified as comma separated values. All tags are run if this argument is absent.
+
+## Configuration
+
+
 
 ## Graylog integration
 
