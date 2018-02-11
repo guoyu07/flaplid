@@ -7,6 +7,29 @@
     <groupId>horse.wtf</groupId>
     <artifactId>flaplid</artifactId>
     <version>0.1-SNAPSHOT</version>
+    <name>Flaplid</name>
+    <description>Flaplid is an easy to use suite of pre-built security checks to continuously monitor security relevant configuration.</description>
+    <url>https://github.com/lennartkoopmann/flaplid/issues</url>
+
+    <issueManagement>
+        <url>https://github.com/lennartkoopmann/flaplid/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+
+    <scm>
+        <url>https://github.com/lennartkoopmann/flaplid</url>
+        <connection>scm:git:git://github.com/lennartkoopmann/flaplid.git</connection>
+        <developerConnection>scm:git:git://github.com/lennartkoopmann/flaplid.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <email>lennart@0x58ed.com</email>
+            <name>Lennart Koopmann</name>
+            <url>https://github.com/lennartkoopmann</url>
+            <id>lennartkoopmann</id>
+        </developer>
+    </developers>
 
     <repositories>
         <repository>
@@ -172,7 +195,6 @@
                     <abbrevLength>7</abbrevLength>
                     <evaluateOnCommit>HEAD</evaluateOnCommit>
                 </configuration>
-
             </plugin>
 
             <plugin>
@@ -213,6 +235,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <!-- Do not run deploy goal because we do not want to upload artifact to a repository. -->
+                    <goals>install</goals>
+                </configuration>
             </plugin>
         </plugins>
     </build>
