@@ -1,7 +1,6 @@
 # Flaplid
 
 [![Build Status](https://travis-ci.org/lennartkoopmann/flaplid.svg?branch=master)](https://travis-ci.org/lennartkoopmann/flaplid/)
-[![Codecov](https://img.shields.io/codecov/c/github/lennartkoopmann/flaplid.svg)](https://codecov.io/gh/lennartkoopmann/flaplid/)
 [![License](https://img.shields.io/github/license/lennartkoopmann/flaplid.svg)](https://www.gnu.org/licenses/gpl-3.0.txt)
 
 Flaplid is an easy to use suite of pre-built security checks to continuously monitor security relevant configuration. It
@@ -156,6 +155,8 @@ checks:
 Flaplid will merge all the `checks` arrays it finds into one large array and then execute each test.
 
 ## Attic
+
+TBD
 
 ## Graylog integration
 
