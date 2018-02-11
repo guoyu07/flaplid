@@ -18,8 +18,8 @@
 
     <scm>
         <url>https://github.com/lennartkoopmann/flaplid</url>
-        <connection>scm:git:git://github.com/lennartkoopmann/flaplid.git</connection>
-        <developerConnection>scm:git:git://github.com/lennartkoopmann/flaplid.git</developerConnection>
+        <connection>scm:git:ssh://github.com/lennartkoopmann/flaplid.git</connection>
+        <developerConnection>scm:git:ssh://github.com/lennartkoopmann/flaplid.git</developerConnection>
     </scm>
 
     <developers>
