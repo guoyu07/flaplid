@@ -2,9 +2,10 @@
 target/
 dependency-reduced-pom.xml
 .DS_Store
-
 *.iml
 phantomjsdriver.log
+pom.xml.releaseBackup
+release.properties
 
 /attic/
 checks.d/
