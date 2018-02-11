@@ -65,7 +65,11 @@ public abstract class Check {
     }
 
     public String getFullCheckIdentifier() {
-        return getCheckType() + ":" + getCheckId() + "#" + configuration.getSeverity().toString().toLowerCase();
+        return getCheckType() + ":" + getCheckId() + "#" + getSeverity().toString().toLowerCase();
+    }
+
+    public Severity getSeverity() {
+        return configuration.getSeverity();
     }
 
     protected Attic getAttic() {

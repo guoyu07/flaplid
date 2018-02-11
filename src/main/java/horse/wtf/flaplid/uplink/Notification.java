@@ -17,22 +17,64 @@
 
 package horse.wtf.flaplid.uplink;
 
+import com.google.common.collect.Maps;
 import horse.wtf.flaplid.Issue;
+
+import java.util.Map;
 
 public class Notification {
 
-    private final String message;
-
-    public Notification(Issue issue) {
-        this.message = issue.getMessage();
+    public enum TYPE {
+        ISSUE, RUN_ISSUE_COUNT, RUN_META
     }
 
-    public Notification(String message) {
+    public enum FIELD {
+        MESSAGE_TYPE,
+        ISSUE_COUNT,
+        RUN_DURATION_MS,
+        TOTAL_CHECKS_EXECUTED,
+        TOTAL_CHECKS_DISABLED,
+        CHECK_SEVERITY,
+        CHECK_ID,
+        CHECK_NAME
+    }
+
+    private final String message;
+    private final Map<FIELD, Object> fields;
+
+    public Notification(Issue issue) {
+        this.message = "[ISSUE] " + issue.getMessage();
+
+        // TODO add severity, id, name
+
+        this.fields = Maps.newHashMap();
+        this.fields.put(FIELD.MESSAGE_TYPE, TYPE.ISSUE);
+        this.fields.put(FIELD.CHECK_SEVERITY, issue.getCheck().getSeverity());
+        this.fields.put(FIELD.CHECK_ID, issue.getCheck().getCheckId());
+        this.fields.put(FIELD.CHECK_NAME, issue.getCheck().getFullCheckIdentifier());
+    }
+
+    public Notification(TYPE type, String message) {
         this.message = message;
+
+        this.fields = Maps.newHashMap();
+        this.fields.put(FIELD.MESSAGE_TYPE, type);
     }
 
     public String getMessage() {
         return message;
+    }
+
+    public void addField(FIELD field, Object value) {
+        this.fields.put(field, value);
+    }
+
+    public void addFields(Map<FIELD, Object> fields) {
+        this.fields.putAll(fields);
+    }
+
+    public Map<FIELD, Object> getFields() {
+        return Maps.newHashMap(fields);
     }
 
 }

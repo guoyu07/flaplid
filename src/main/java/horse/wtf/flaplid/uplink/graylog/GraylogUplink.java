@@ -21,10 +21,12 @@ import horse.wtf.flaplid.uplink.Notification;
 import horse.wtf.flaplid.uplink.Uplink;
 import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.GelfMessage;
+import org.graylog2.gelfclient.GelfMessageLevel;
 import org.graylog2.gelfclient.GelfTransports;
 import org.graylog2.gelfclient.transport.GelfTransport;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 public class GraylogUplink implements Uplink {
 
@@ -51,8 +53,21 @@ public class GraylogUplink implements Uplink {
     @Override
     public void notify(Notification notification) {
         GelfMessage gelf = new GelfMessage("flaplid: " + notification.getMessage(), SOURCE);
+        gelf.setLevel(GelfMessageLevel.INFO);
         gelf.addAdditionalField("flaplid_sensor_id", this.flaplidId);
         gelf.addAdditionalField("flaplid_run_id", this.runId);
+
+        // Add all additional fields coming from the notification and prefix them.
+        for (Map.Entry<Notification.FIELD, Object> field : notification.getFields().entrySet()) {
+            Object value;
+            if (field.getValue() instanceof Enum) {
+                value = field.getValue().toString().toLowerCase();
+            } else {
+                value = field.getValue();
+            }
+
+            gelf.addAdditionalField("flaplid_" + field.getKey().toString().toLowerCase(), value);
+        }
 
         this.gelfTransport.trySend(gelf);
     }

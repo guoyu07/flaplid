@@ -22,12 +22,15 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Charsets;
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import horse.wtf.flaplid.checks.Check;
+import horse.wtf.flaplid.checks.FatalCheckException;
 import horse.wtf.flaplid.checks.aws.AWSIAMCheck;
 import horse.wtf.flaplid.checks.aws.EC2SecurityGroupsCheck;
 import horse.wtf.flaplid.checks.dns.DNSCheck;
@@ -47,6 +50,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.time.temporal.TemporalUnit;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -138,7 +142,7 @@ public class Main {
         } else {
             LOG.info("Graylog uplink is DISABLED.");
         }
-        uplink.notify(new Notification("Starting flaplid run."));
+        uplink.notify(new Notification(Notification.TYPE.RUN_META,"Starting flaplid run."));
 
         ObjectMapper om = new ObjectMapper();
         om.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
@@ -155,6 +159,8 @@ public class Main {
 
         // Load all checks.
         Set<String> checkIDs = Sets.newHashSet();
+        int checksExecuted = 0;
+        Stopwatch timer = Stopwatch.createStarted();
         for (Map<String, Object> configMap : configuration.checks) {
             CheckConfiguration checkConfiguration = new CheckConfiguration(configMap, configuration);
 
@@ -211,6 +217,7 @@ public class Main {
 
             if (!cliArguments.hasTags() || checkConfiguration.hasARequestedTag(cliArguments.getTags())) {
                 try {
+                    checksExecuted += 1;
                     check.run();
                     issues.addAll(check.getIssues());
                 } catch(FatalCheckException e) {
@@ -222,27 +229,34 @@ public class Main {
                 LOG.info("Not running check [{}] because it does not have any of the requested tags.", checkConfiguration.getId());
             }
         }
+        timer.stop();
 
         // Create issues for disabled checks.
-        for (Check disabledCheck : disabledChecks.build()) {
+        ImmutableList<Check> finalDisabledChecks = disabledChecks.build();
+        for (Check disabledCheck : finalDisabledChecks) {
             issues.add(new Issue(disabledCheck, "Check [{}] is disabled and was not executed. Remove permanently disabled checks from the configuration.", disabledCheck.getFullCheckIdentifier()));
         }
 
-        // TODO add fields to final report: flaplid_check[severity, id, name], flaplid_run_duration_ms, flaplid_total_checks_run, flaplid_disabled_checks, flaplid_ok_checks, flaplid_issue_checks
-
-        // Report all issues.
+        // Report all issues. TODO add to both: flaplid_run_duration_ms, flaplid_total_checks_run, flaplid_disabled_checks, flaplid_ok_checks, flaplid_issues
         ImmutableList<Issue> finalIssues = issues.build();
+        Notification summary;
+        Map<Notification.FIELD, Object> reportMetadata = Maps.newHashMap();
+        reportMetadata.put(Notification.FIELD.ISSUE_COUNT, finalIssues.size());
+        reportMetadata.put(Notification.FIELD.TOTAL_CHECKS_EXECUTED, checksExecuted);
+        reportMetadata.put(Notification.FIELD.TOTAL_CHECKS_DISABLED, finalDisabledChecks.size());
+        reportMetadata.put(Notification.FIELD.RUN_DURATION_MS, timer.elapsed(TimeUnit.MILLISECONDS));
         if(finalIssues.isEmpty()) {
             LOG.info("Finished run. No issues detected. (•̀ᴗ•́)و̑̑");
-            uplink.notify(new Notification("Finished run. No issues detected."));
+            summary = new Notification(Notification.TYPE.RUN_ISSUE_COUNT,"Finished run. No issues detected.");
         } else {
-            uplink.notify(new Notification("Finished run. <" + finalIssues.size() + "> issues detected."));
+            summary = new Notification(Notification.TYPE.RUN_ISSUE_COUNT,"Finished run. <" + finalIssues.size() + "> issues detected.");
             for (Issue issue : finalIssues) {
                 LOG.warn("Check {}: {}", issue.getCheck().getFullCheckIdentifier(), issue.getMessage());
                 uplink.notify(new Notification(issue));
             }
         }
-
+        summary.addFields(reportMetadata);
+        uplink.notify(summary);
     }
 
 }

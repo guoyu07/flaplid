@@ -63,6 +63,7 @@ $ java -jar flaplid-0.4.jar -c config.yml --tags foo,bar,baz
 2018-02-10T18:43:15.555 [main] INFO  horse.wtf.flaplid.Main - Running all enabled checks matching any of the following tags: [testing, slack].
 2018-02-10T18:43:15.715 [main] INFO  horse.wtf.flaplid.Main - Including configuration from [/mnt/workspace/flaplid/conf.d].
 2018-02-10T18:43:15.718 [main] INFO  horse.wtf.flaplid.Main - Reading configuration from [/mnt/workspace/flaplid/conf.d/acmecorp_dns.yml].
+2018-02-10T18:43:15.850 [main] INFO  horse.wtf.flaplid.Main - Flaplid run ID is [3b57a0a5-fde9-4113-98af-018a78844cb6] on sensor [flaplid-checks-1].
 2018-02-10T18:43:15.867 [main] INFO  horse.wtf.flaplid.Main - Not running check [acmecorp-aws-iam] because it does not have any of the requested tags.
 2018-02-10T18:43:15.867 [main] INFO  horse.wtf.flaplid.Main - Not running check [acmecorp-aws-security-groups] because it does not have any of the requested tags.
 2018-02-10T18:43:15.871 [main] INFO  horse.wtf.flaplid.checks.Check - Running check [slack_team:acmecorp#warning].
@@ -88,12 +89,15 @@ The Flaplid configuration file has to be in YAML format. Note that for valid YAM
 set to two whitespaces. This can be annoying to debug but leads to vastly improved readability compared to JSON, XML or
 flat configuration files.
 
-The following parameters are mandatory and Flaplid will exit with an error if they are absent:
+The following parameters are available:
 
-* `attic_folder`: Relative path to a local folder that will be used to store artifacts of failed checks. For example, if
+* `sensor_id` (required): The name of this flaplid instance. Useful when running multiple sensors. Example: `flaplid-checks-1`
+* `attic_folder` (required): Relative path to a local folder that will be used to store artifacts of failed checks. For example, if
                   a file download check raises an issue, the downloaded file will be stored in the `attic_folder` to
                   allow later analysis and forensics. (See _Attic_ below)
-* `checks`: An array of check configurations
+* `graylog_address` (optional): Address (format: `host:port`) of a Graylog GELF TCP input for transmission of results
+                                and status information after each Flaplid run. (See _Graylog integration_ below) 
+* `checks` (required): An array of check configurations
 
 An example configuration can be found [here](https://github.com/lennartkoopmann/flaplid/blob/master/config.yml.example).
 
@@ -108,7 +112,9 @@ and merge their configurations.
 For example, your main `config.yml` could look like this:
 
 ```
+sensor_id: flaplid-checks-1
 attic_folder: attic/
+graylog_address: graylog.example.com:12000
 include: conf.d/
 ```
 
