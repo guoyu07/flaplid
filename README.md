@@ -65,3 +65,12 @@ The maven goals are:
 
 * `git-commit-id:revision`
 * `resources:resources`
+
+### Releasing a new version
+
+Project maintainers with authorization can release a new version like this:
+
+* `mvn release:prepare`
+* `mvn release:peform`
+* `git fetch # to pull local state`
+* Upload artifact from `target/` to Github releases. This is currently not automated but could be in the future.
