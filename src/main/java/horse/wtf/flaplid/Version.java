@@ -37,8 +37,7 @@ public class Version {
 
             return new StringBuilder(String.valueOf(gitProperties.get("git.build.version")))
                     .append(" built at [")
-                    .append(String.valueOf(buildProperties.get("date"))).append("] from [")
-                    .append(String.valueOf(gitProperties.get("git.commit.id.describe-short"))).append("]")
+                    .append(String.valueOf(buildProperties.get("date"))).append("]")
                     .toString();
         } catch (IOException e) {
             LOG.error("Could not load version information.", e);
