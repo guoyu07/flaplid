@@ -19,6 +19,8 @@ package horse.wtf.flaplid.uplink.graylog;
 
 import horse.wtf.flaplid.uplink.Notification;
 import horse.wtf.flaplid.uplink.Uplink;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.graylog2.gelfclient.GelfConfiguration;
 import org.graylog2.gelfclient.GelfMessage;
 import org.graylog2.gelfclient.GelfMessageLevel;
@@ -29,6 +31,8 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 
 public class GraylogUplink implements Uplink {
+
+    private static final Logger LOG = LogManager.getLogger(GraylogUplink.class);
 
     private static final String SOURCE = "flaplid";
 
@@ -43,7 +47,7 @@ public class GraylogUplink implements Uplink {
 
         this.gelfTransport = GelfTransports.create(new GelfConfiguration(new InetSocketAddress(address.getHost(), address.getPort()))
                 .transport(GelfTransports.TCP)
-                .queueSize(2048)
+                .queueSize(1) // Setting this to 1 to make the client basically blocking.
                 .connectTimeout(10000)
                 .reconnectDelay(1000)
                 .tcpNoDelay(true)
@@ -69,7 +73,12 @@ public class GraylogUplink implements Uplink {
             gelf.addAdditionalField("flaplid_" + field.getKey().toString().toLowerCase(), value);
         }
 
-        this.gelfTransport.trySend(gelf);
+        try {
+            // This blocks until the message is sent because we set the queueSize to 1.
+            this.gelfTransport.send(gelf);
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted while trying to send message to Graylog.", e);
+        }
     }
 
 }
