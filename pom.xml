@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>horse.wtf</groupId>
     <artifactId>flaplid</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <name>Flaplid</name>
     <description>Flaplid is an easy to use suite of pre-built security checks to continuously monitor security relevant configuration.</description>
     <url>https://github.com/lennartkoopmann/flaplid/issues</url>
@@ -20,7 +18,8 @@
         <url>https://github.com/lennartkoopmann/flaplid</url>
         <connection>scm:git:ssh://git@github.com/lennartkoopmann/flaplid.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/lennartkoopmann/flaplid.git</developerConnection>
-    </scm>
+      <tag>flaplid-0.1</tag>
+  </scm>
 
     <developers>
         <developer>
