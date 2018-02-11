@@ -159,7 +159,7 @@ public class Main {
             CheckConfiguration checkConfiguration = new CheckConfiguration(configMap, configuration);
 
             if(!checkConfiguration.standardParametersAreComplete()) {
-                LOG.error("Missing attribute on check configuration. Skipping.");
+                LOG.error("Missing attribute on check configuration for a [{}] check. Skipping.", checkConfiguration.getType());
                 continue;
             }
 
@@ -213,9 +213,9 @@ public class Main {
                 try {
                     check.run();
                     issues.addAll(check.getIssues());
-                } catch(Exception e) {
+                } catch(FatalCheckException e) {
                     LOG.error(e);
-                    issues.add(new Issue(check, "Check failed unexpectedly. Check the flaplid error log for more details." +
+                    issues.add(new Issue(check, "Check failed unexpectedly. Check the flaplid error log for more details. " +
                             "Exception was: [{}]", e.getMessage()));
                 }
             } else {

@@ -1,11 +1,13 @@
 .idea/
 target/
 dependency-reduced-pom.xml
-
+.DS_Store
 *.iml
 phantomjsdriver.log
+pom.xml.releaseBackup
+release.properties
 
-attic/
+/attic/
 checks.d/
 conf.d/
 src/main/resources/git.properties

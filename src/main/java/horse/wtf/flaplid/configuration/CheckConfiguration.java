@@ -19,10 +19,12 @@ package horse.wtf.flaplid.configuration;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import horse.wtf.flaplid.checks.Severity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +111,24 @@ public class CheckConfiguration {
     public List<String> getListOfStrings(String key) {
         Object o = getObject(key);
 
-        return o == null ? null : (List) o;
+        List<String> strings = Lists.newArrayList();
+
+        if (o == null) {
+            return strings;
+        }
+
+        if (o instanceof List) {
+            for (String string : ((List<String>) o)) {
+                // Skip empty or NULL strings.
+                if(Strings.isNullOrEmpty(string)) {
+                    continue;
+                }
+
+                strings.add(string);
+            }
+        }
+
+        return strings;
     }
 
     public Object getObject(String key) {

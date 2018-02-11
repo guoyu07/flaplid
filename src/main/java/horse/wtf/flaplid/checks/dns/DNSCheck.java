@@ -136,7 +136,7 @@ public class DNSCheck extends Check {
                 }
             }
         } catch(Exception e) {
-            throw new RuntimeException("Could not run DNS lookup.", e);
+            throw new RuntimeException(e);
         }
     }
 
