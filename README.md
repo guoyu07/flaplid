@@ -109,6 +109,8 @@ The maven goals are:
 * `git-commit-id:revision`
 * `resources:resources`
 
+Note that this is completely optional and will slow down the IDE build process.
+
 ### Releasing a new version
 
 Project maintainers with authorization can release a new version like this:
