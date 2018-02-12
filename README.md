@@ -41,8 +41,20 @@ Currently, the following check types can be configured for Flaplid. See also _Wr
 
 ## Prerequisites
 
-All you need is a operating system with at least Java 8 installed. (`sudo apt install openjdk-8-jre-headless`) Flaplid
+All you need is a **operating system with at least Java 8 installed**. (`sudo apt install openjdk-8-jre-headless`) Flaplid
 is known to be working on Linux, OSX and Windows.
+
+For checks that use a headless browser, you have to install phantomjs. Do not use the phantomjs provided by your operating system package manager because it will be most likely too old. Instead, download the binary from [phantomjs.org](http://phantomjs.org/download.html)
+
+On Linux, the phantomjs installation looks like this:
+
+```
+$ wget https://github.com/ariya/phantomjs/releases/download/2.1.3/phantomjs # replace with latest version
+$ chmod +x phantomjs
+$ sudo mv phantomjs /usr/bin
+$ phantomjs -v
+2.1.3-dev-release
+```
 
 It is recommended to connect a [Graylog](https://www.graylog.org/) (free and open source log management - see
 _Graylog integration_ below) system for easy reporting and alerting but you could run Flaplid without it.
