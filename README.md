@@ -69,7 +69,7 @@ All you need is the Flaplid JAR file, downloaded from the [Releases page](https:
 Example execution:
 
 ```
-$ java -jar flaplid-0.4.jar -c config.yml --tags foo,bar,baz
+$ java -Xmx512m -jar flaplid-0.4.jar -c config.yml --tags foo,bar,baz
 2018-02-10T18:43:15.525 [main] INFO  horse.wtf.flaplid.Main - Starting up. (•_•) .. ( •_•)>⌐■-■ .. (⌐■_■)
 2018-02-10T18:43:15.528 [main] INFO  horse.wtf.flaplid.Main - Version: 0.3 built at [2018-02-11T00:35:54Z].
 2018-02-10T18:43:15.555 [main] INFO  horse.wtf.flaplid.Main - Running all enabled checks matching any of the following tags: [testing, slack].
@@ -89,6 +89,8 @@ $ java -jar flaplid-0.4.jar -c config.yml --tags foo,bar,baz
 2018-02-10T18:43:16.486 [main] WARN  horse.wtf.flaplid.Main - Check dns:testing-a-failing-test#emergency: Expected records [173.194.67.27, alt1.aspmx.l.google.com, alt2.aspmx.l.google.com, aspmx2.googlemail.com, aspmx3.googlemail.com] but found [alt1.aspmx.l.google.com, alt2.aspmx.l.google.com, aspmx2.googlemail.com, aspmx3.googlemail.com, aspmx.l.google.com].
 2018-02-10T18:43:16.486 [main] WARN  horse.wtf.flaplid.Main - Check dns:testing-another-failing-test#emergency: Expected no DNS records but found <1>. The records are: [188.166.203.69]
 ```
+
+The `-Xmx512m` flag instructs Java to use a maximum of 512 MB for heap space. Increase this number if you are getting a `java.lang.OutOfMemoryError: Java heap space` error.
 
 Available CLI arguments:
 
