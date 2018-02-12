@@ -64,62 +64,67 @@ public class WebsiteDownloadCheck extends WebDriverCheck {
         String url = configuration.getString(C_URL);
 
         PhantomJSDriver driver = PhantomJS.buildDriver(PhantomJS.randomUserAgent());
-        WebElement element = PhantomJS.getElementFromSite(driver, cssSelector, selectorIndex, url);
 
-        byte[] screenshotBytes = driver.getScreenshotAs(OutputType.BYTES);
-        byte[] sourceBytes = driver.getPageSource().getBytes();
+        try {
+            WebElement element = PhantomJS.getElementFromSite(driver, cssSelector, selectorIndex, url);
 
-        String downloadLink = element.getAttribute("href");
-        if(downloadLink == null) {
-            throw new RuntimeException("Element #" + selectorIndex + " of [" + cssSelector + "] on [" + url + "] does not have a href attribute. Cannot follow for download.");
-        }
+            byte[] screenshotBytes = driver.getScreenshotAs(OutputType.BYTES);
+            byte[] sourceBytes = driver.getPageSource().getBytes();
 
-        DateTime timestamp = DateTime.now();
-
-        // Follow link and download file to attic.
-        DownloadResult downloadResult = FileDownloader.downloadFileToAttic(this.getAttic(), this.httpClient, downloadLink, timestamp);
-
-        // Calculate and compare checksum.
-        String expectedChecksum = configuration.getString(C_EXPECTED_SHA256_CHECKSUM);
-        LOG.info("Completed download. Comparing checksums. Expecting checksum [{}]", expectedChecksum);
-
-        String checksum = Hashing.sha256().hashBytes(downloadResult.getDownloadedBytes()).toString();
-        if (checksum.equals(expectedChecksum)) {
-            // Checksums match. Delete the file if no archival was configured.
-            LOG.info("Checksums match. ({}=={})", expectedChecksum, checksum);
-
-            if(configuration.getBoolean(C_ARCHIVE_MATCHED_FILES)) {
-               LOG.info("Configuration requests to keep all files. ({}:true) Not deleting downloaded file from attic. File is at [{}].",
-                       C_ARCHIVE_MATCHED_FILES, downloadResult.getDownloadedFilePath());
-
-                saveScreenshotAndSource("source", screenshotBytes, sourceBytes, timestamp);
-            } else {
-                LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_MATCHED_FILES);
-                if(!downloadResult.getDownloadedFile().delete()) {
-                    LOG.error("Could not delete file at [{}].", downloadResult.getDownloadedFilePath());
-                }
-            }
-        } else {
-            // Checksums do not match!
-            LOG.warn("Checksums do not match! ({}!={})", expectedChecksum, checksum);
-
-            if(configuration.getBoolean(C_ARCHIVE_MISMATCHED_FILES)) {
-                LOG.info("Configuration requests to keep mismatched files. ({}:true) Not deleting downloaded file from attic. File is at [{}]",
-                        C_ARCHIVE_MISMATCHED_FILES, downloadResult.getDownloadedFilePath());
-
-                saveScreenshotAndSource("source", screenshotBytes, sourceBytes, timestamp);
-            } else {
-                LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_MISMATCHED_FILES);
-                if(!downloadResult.getDownloadedFile().delete()) {
-                    LOG.error("Could not delete file at [{}].", downloadResult.getDownloadedFilePath());
-                }
+            String downloadLink = element.getAttribute("href");
+            if (downloadLink == null) {
+                throw new RuntimeException("Element #" + selectorIndex + " of [" + cssSelector + "] on [" + url + "] does not have a href attribute. Cannot follow for download.");
             }
 
-            addIssue(new Issue(
-                    this,
-                    "Downloaded file from [{}] (via CSS selector [{} (ix#{})] on [{}}) does not match expected checksum [{}] but was [{}].",
-                    downloadLink, cssSelector, selectorIndex, url, expectedChecksum, checksum
-            ));
+            DateTime timestamp = DateTime.now();
+
+            // Follow link and download file to attic.
+            DownloadResult downloadResult = FileDownloader.downloadFileToAttic(this.getAttic(), this.httpClient, downloadLink, timestamp);
+
+            // Calculate and compare checksum.
+            String expectedChecksum = configuration.getString(C_EXPECTED_SHA256_CHECKSUM);
+            LOG.info("Completed download. Comparing checksums. Expecting checksum [{}]", expectedChecksum);
+
+            String checksum = Hashing.sha256().hashBytes(downloadResult.getDownloadedBytes()).toString();
+            if (checksum.equals(expectedChecksum)) {
+                // Checksums match. Delete the file if no archival was configured.
+                LOG.info("Checksums match. ({}=={})", expectedChecksum, checksum);
+
+                if (configuration.getBoolean(C_ARCHIVE_MATCHED_FILES)) {
+                    LOG.info("Configuration requests to keep all files. ({}:true) Not deleting downloaded file from attic. File is at [{}].",
+                            C_ARCHIVE_MATCHED_FILES, downloadResult.getDownloadedFilePath());
+
+                    saveScreenshotAndSource("source", screenshotBytes, sourceBytes, timestamp);
+                } else {
+                    LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_MATCHED_FILES);
+                    if (!downloadResult.getDownloadedFile().delete()) {
+                        LOG.error("Could not delete file at [{}].", downloadResult.getDownloadedFilePath());
+                    }
+                }
+            } else {
+                // Checksums do not match!
+                LOG.warn("Checksums do not match! ({}!={})", expectedChecksum, checksum);
+
+                if (configuration.getBoolean(C_ARCHIVE_MISMATCHED_FILES)) {
+                    LOG.info("Configuration requests to keep mismatched files. ({}:true) Not deleting downloaded file from attic. File is at [{}]",
+                            C_ARCHIVE_MISMATCHED_FILES, downloadResult.getDownloadedFilePath());
+
+                    saveScreenshotAndSource("source", screenshotBytes, sourceBytes, timestamp);
+                } else {
+                    LOG.info("Deleting downloaded file from attic as requested. ({}:false)", C_ARCHIVE_MISMATCHED_FILES);
+                    if (!downloadResult.getDownloadedFile().delete()) {
+                        LOG.error("Could not delete file at [{}].", downloadResult.getDownloadedFilePath());
+                    }
+                }
+
+                addIssue(new Issue(
+                        this,
+                        "Downloaded file from [{}] (via CSS selector [{} (ix#{})] on [{}}) does not match expected checksum [{}] but was [{}].",
+                        downloadLink, cssSelector, selectorIndex, url, expectedChecksum, checksum
+                ));
+            }
+        } finally {
+            driver.quit();
         }
     }
 

@@ -58,44 +58,49 @@ public class WebsiteLinkTargetCheck extends WebDriverCheck {
         String expectedTarget = configuration.getString(C_EXPECTED_TARGET);
 
         PhantomJSDriver driver = PhantomJS.buildDriver(PhantomJS.randomUserAgent());
-        WebElement element = PhantomJS.getElementFromSite(driver, cssSelector, selectorIndex, url);
 
-        // Remove all link targets to avoid sending PhantomJS to window hell on a target="_blank".
-        driver.executeScript("var links = document.links, i, length; for (i = 0, length = links.length; i < length; i++) { links[i].target == '_blank' && links[i].removeAttribute('target'); }");
+        try {
+            WebElement element = PhantomJS.getElementFromSite(driver, cssSelector, selectorIndex, url);
 
-        byte[] sourceScreenshotBytes = driver.getScreenshotAs(OutputType.BYTES);
-        byte[] sourceSourceBytes = driver.getPageSource().getBytes();
+            // Remove all link targets to avoid sending PhantomJS to window hell on a target="_blank".
+            driver.executeScript("var links = document.links, i, length; for (i = 0, length = links.length; i < length; i++) { links[i].target == '_blank' && links[i].removeAttribute('target'); }");
 
-        LOG.debug("About to click on link with href [{}] and target [{}].", element.getAttribute("href"), element.getAttribute("target"));
-        element.click();
-        LOG.debug("Clicked.");
+            byte[] sourceScreenshotBytes = driver.getScreenshotAs(OutputType.BYTES);
+            byte[] sourceSourceBytes = driver.getPageSource().getBytes();
 
-        String destination = driver.getCurrentUrl();
+            LOG.debug("About to click on link with href [{}] and target [{}].", element.getAttribute("href"), element.getAttribute("target"));
+            element.click();
+            LOG.debug("Clicked.");
 
-        byte[] destinationScreenshotBytes = driver.getScreenshotAs(OutputType.BYTES);
-        byte[] destinationSourceBytes = driver.getPageSource().getBytes();
+            String destination = driver.getCurrentUrl();
 
-        if(expectedTarget.equals(destination)) {
-            if(configuration.getBoolean(C_ARCHIVE_MATCHES)) {
-                saveScreenshotAndSource("source", sourceScreenshotBytes, sourceSourceBytes);
-                saveScreenshotAndSource("destination", destinationScreenshotBytes, destinationSourceBytes);
+            byte[] destinationScreenshotBytes = driver.getScreenshotAs(OutputType.BYTES);
+            byte[] destinationSourceBytes = driver.getPageSource().getBytes();
+
+            if(expectedTarget.equals(destination)) {
+                if(configuration.getBoolean(C_ARCHIVE_MATCHES)) {
+                    saveScreenshotAndSource("source", sourceScreenshotBytes, sourceSourceBytes);
+                    saveScreenshotAndSource("destination", destinationScreenshotBytes, destinationSourceBytes);
+                } else {
+                    LOG.debug("Not storing screenshots and page source codes as requested. ({}:false)", C_ARCHIVE_MATCHES);
+                }
+
+                LOG.debug("We have been redirected to expected target [{}].", expectedTarget);
             } else {
-                LOG.debug("Not storing screenshots and page source codes as requested. ({}:false)", C_ARCHIVE_MATCHES);
+                if (configuration.getBoolean(C_ARCHIVE_MISMATCHES)) {
+                    saveScreenshotAndSource("source", sourceScreenshotBytes, sourceSourceBytes);
+                    saveScreenshotAndSource("destination", destinationScreenshotBytes, destinationSourceBytes);
+                } else {
+                    LOG.debug("Not storing screenshots and page source codes as requested. ({}:false)", C_ARCHIVE_MISMATCHES);
+                }
+
+                LOG.warn("We have been redirected to URL [{}] that does not match the expected target [{}].", destination, expectedTarget);
+
+                addIssue(new Issue(this, "We have been redirected to URL [{}] that does not match the expected target [{}].",
+                        destination, expectedTarget));
             }
-
-            LOG.debug("We have been redirected to expected target [{}].", expectedTarget);
-        } else {
-            if (configuration.getBoolean(C_ARCHIVE_MISMATCHES)) {
-                saveScreenshotAndSource("source", sourceScreenshotBytes, sourceSourceBytes);
-                saveScreenshotAndSource("destination", destinationScreenshotBytes, destinationSourceBytes);
-            } else {
-                LOG.debug("Not storing screenshots and page source codes as requested. ({}:false)", C_ARCHIVE_MISMATCHES);
-            }
-
-            LOG.warn("We have been redirected to URL [{}] that does not match the expected target [{}].", destination, expectedTarget);
-
-            addIssue(new Issue(this, "We have been redirected to URL [{}] that does not match the expected target [{}].",
-                    destination, expectedTarget));
+        } finally {
+            driver.quit();
         }
     }
 
