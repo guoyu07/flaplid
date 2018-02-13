@@ -84,6 +84,11 @@ public class DNSCheck extends Check {
 
             ImmutableList.Builder<String> recordsBuilder = new ImmutableList.Builder<>();
             for (Record record : lookupResult) {
+                if((record.getType() == Type.A || record.getType() == Type.AAAA) && lookup.getAliases() != null && lookup.getAliases().length > 0) {
+                    // A records as part of a resolved CNAME are skipped. (crossing fingers that this is the best way to detect this)
+                    continue;
+                }
+
                 switch(record.getType()) {
                     case Type.MX:
                         MXRecord mx = (MXRecord) record;
