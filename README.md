@@ -81,6 +81,12 @@ $ java -Xmx512m -jar flaplid-0.4.jar -c config.yml --tags foo,bar,baz
 2018-02-10T18:43:15.871 [main] INFO  horse.wtf.flaplid.checks.Check - Running check [slack_team:acmecorp#warning].
 2018-02-10T18:43:16.315 [main] INFO  horse.wtf.flaplid.checks.Check - Running check [dns:testing-a-failing-test#emergency].
 2018-02-10T18:43:16.400 [main] INFO  horse.wtf.flaplid.checks.Check - Running check [dns:testing-another-failing-test#emergency].
+2018-02-10T18:43:16.960 [main] INFO  horse.wtf.flaplid.checks.Check - Running check [website_download:graylog-downloads-tgz#emergency].
+2018-02-10T18:43:16.930 [main] INFO  horse.wtf.flaplid.checks.supplychain.helpers.PhantomJS - Opening [https://www.graylog.org/downloads] to get element link via CSS selector [.button-10 (ix#0)].
+2018-02-10T18:43:16.391 [main] INFO  horse.wtf.flaplid.checks.supplychain.helpers.FileDownloader - Downloading file from [https://packages.graylog2.org/releases/graylog/graylog-2.4.3.tgz].
+2018-02-10T18:43:16.054 [main] INFO  horse.wtf.flaplid.checks.supplychain.WebsiteDownloadCheck - Completed download. Comparing checksums. Expecting checksum [c6c2e029307abda5e55603375797bec1a4c44fbc2e99988527f4639d6a7a8f4f]
+2018-02-10T18:43:16.065 [main] INFO  horse.wtf.flaplid.checks.supplychain.WebsiteDownloadCheck - Checksums match. (c6c2e029307abda5e55603375797bec1a4c44fbc2e99988527f4639d6a7a8f4f==c6c2e029307abda5e55603375797bec1a4c44fbc2e99988527f4639d6a7a8f4f)
+2018-02-10T18:43:16.066 [main] INFO  horse.wtf.flaplid.checks.supplychain.WebsiteDownloadCheck - Deleting downloaded file from attic as requested. (archive_matched_files:false)
 
 [... check results below ...]
 
