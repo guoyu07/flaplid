@@ -13,7 +13,7 @@ Currently, the following check types can be configured for Flaplid. See also _Wr
 
 * _Supply Chain_
   * **DNS records are exactly as expected** - [Configure this check](https://github.com/lennartkoopmann/flaplid/wiki/Checks:-DNS)
-    * An attacker could change DNS traffic to a page looking just like yours but not under your control.
+    * An attacker could change DNS traffic to a page looking just like yours but not under your control. (See also [Lessons learned from a Man-in-the-Middle attack](https://web.archive.org/web/20180121023728/https://www.fox-it.com/en/insights/blogs/blog/fox-hit-cyber-attack/)
   * **HTTP request ends at expected address after possible redirects** (simulates full browser, stores artifacts locally
     for forensics)
     * An attacker with access to your website or DNS could change a link to another resource like, for example,
