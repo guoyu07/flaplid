@@ -4,7 +4,7 @@
 
     <groupId>horse.wtf</groupId>
     <artifactId>flaplid</artifactId>
-    <version>0.6</version>
+    <version>0.7-SNAPSHOT</version>
     <name>Flaplid</name>
     <description>Flaplid is an easy to use suite of pre-built security checks to continuously monitor security relevant configuration.</description>
     <url>https://github.com/lennartkoopmann/flaplid/issues</url>
@@ -18,7 +18,7 @@
         <url>https://github.com/lennartkoopmann/flaplid</url>
         <connection>scm:git:ssh://git@github.com/lennartkoopmann/flaplid.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/lennartkoopmann/flaplid.git</developerConnection>
-      <tag>flaplid-0.6</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <developers>
