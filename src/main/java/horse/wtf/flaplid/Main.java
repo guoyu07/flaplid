@@ -249,6 +249,8 @@ public class Main {
         reportMetadata.put(Notification.FIELD.TOTAL_CHECKS_DISABLED, finalDisabledChecks.size());
         reportMetadata.put(Notification.FIELD.TOTAL_EXCEPTIONS, checkExceptions);
         reportMetadata.put(Notification.FIELD.RUN_DURATION_MS, timer.elapsed(TimeUnit.MILLISECONDS));
+
+        LOG.info("Ran <{}> checks in <{}> seconds. Exceptions/Errors: <{}>", checksExecuted, timer.elapsed(TimeUnit.SECONDS), checkExceptions);
         if(finalIssues.isEmpty()) {
             LOG.info("Finished run. No issues detected. (•̀ᴗ•́)و̑̑");
             summary = new Notification(Notification.TYPE.RUN_ISSUE_COUNT,"Finished run. No issues detected.");
