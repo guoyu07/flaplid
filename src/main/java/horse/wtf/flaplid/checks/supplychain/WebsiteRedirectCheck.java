@@ -76,9 +76,7 @@ public class WebsiteRedirectCheck extends WebDriverCheck {
                 } else {
                     LOG.debug("Not storing screenshot and page source code as requested. ({}:false)", C_ARCHIVE_MISMATCHES);
                 }
-
-                LOG.warn("We have been redirected to URL [{}] that does not match the expected target [{}].", destination, expectedTarget);
-
+                
                 addIssue(new Issue(this, "We have been redirected to URL [{}] that does not match the expected target [{}].",
                         destination, expectedTarget));
             }

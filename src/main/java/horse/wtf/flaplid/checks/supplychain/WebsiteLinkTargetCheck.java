@@ -94,8 +94,6 @@ public class WebsiteLinkTargetCheck extends WebDriverCheck {
                     LOG.debug("Not storing screenshots and page source codes as requested. ({}:false)", C_ARCHIVE_MISMATCHES);
                 }
 
-                LOG.warn("We have been redirected to URL [{}] that does not match the expected target [{}].", destination, expectedTarget);
-
                 addIssue(new Issue(this, "We have been redirected to URL [{}] that does not match the expected target [{}].",
                         destination, expectedTarget));
             }
