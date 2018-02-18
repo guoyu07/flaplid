@@ -111,7 +111,7 @@ public class Main {
                             );
 
                             // Add all additional checks to the root configuration.
-                            configuration.checks.addAll(additional.checks);
+                            configuration.addChecks(additional.checks);
                         } else {
                             LOG.debug("Filename does not end with .yml and is ignored: [{}]", includeFile.getCanonicalPath());
                         }

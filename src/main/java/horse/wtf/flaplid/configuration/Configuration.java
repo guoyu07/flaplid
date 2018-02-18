@@ -19,6 +19,7 @@ package horse.wtf.flaplid.configuration;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import horse.wtf.flaplid.uplink.graylog.GraylogAddress;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,4 +88,11 @@ public class Configuration {
         }
     }
 
+    public void addChecks(List<Map<String, Object>> checks) {
+        if(this.checks == null) {
+            this.checks = Lists.newArrayList();
+        }
+
+        this.checks.addAll(checks);
+    }
 }
