@@ -42,7 +42,7 @@ Currently, the following check types can be configured for Flaplid. See also _Wr
 ## Prerequisites
 
 All you need is a **operating system with at least Java 8 installed**. (`sudo apt install openjdk-8-jre-headless`) Flaplid
-is known to be working on Linux, OSX and Windows.
+is known to be working on Linux and OSX.
 
 For checks that use a headless browser, you have to install phantomjs. Do not use the phantomjs provided by your operating system package manager because it will be most likely too old. Instead, download the binary from [phantomjs.org](http://phantomjs.org/download.html)
 
